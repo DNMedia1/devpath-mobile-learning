@@ -38,45 +38,12 @@
 - [x] Improve desktop course and module layouts.
 - [x] Prepare progress persistence boundary with a local repository adapter.
 - [x] Add Supabase planning artifacts with `.env.example` and backend roadmap.
+- [x] Polish dashboard, quiz, projects, profile, and progress screens for mobile and desktop.
 - [x] Verify current baseline with `npm test`, `npm run lint`, and `npm run build`.
 
 ## Next Backlog
 
-### Story 1: Improve Core Screen Polish
-
-**User Story:** As a learner, I want dashboard, quiz, projects, progress, and profile screens to feel consistent and easy to scan on mobile and desktop.
-
-**Acceptance Criteria:**
-
-- Dashboard sections use responsive layout without cramped cards on desktop.
-- Quiz screen has clearer state and result hierarchy.
-- Projects screen supports better scanning by difficulty/course.
-- Profile and progress screens show badges, streak, and progress without visual clutter.
-- Text does not overflow at mobile width.
-
-**Likely Files:**
-
-- Modify: `src/pages/DashboardPage.tsx`
-- Modify: `src/pages/QuizPage.tsx`
-- Modify: `src/pages/ProjectsPage.tsx`
-- Modify: `src/pages/ProfilePage.tsx`
-- Modify: `src/pages/ProgressPage.tsx`
-- Modify: `src/styles.css` if shared patterns are needed.
-
-**Verification:**
-
-- `npm test`
-- `npm run lint`
-- `npm run build`
-- Browser smoke check on mobile and desktop breakpoints when available.
-
-**Commit:**
-
-```bash
-git commit -m "feat: polish core learning screens"
-```
-
-### Story 2: Expand Non-Python Curriculum
+### Story 1: Expand Non-Python Curriculum
 
 **User Story:** As a learner, I want JavaScript/TypeScript, React, Git/GitHub, SQL, Backend APIs, Supabase, and AI Automation content that is deep enough to progress beyond basics.
 
