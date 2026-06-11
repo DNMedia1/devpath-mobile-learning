@@ -171,6 +171,91 @@ const courseSeeds: CourseSeed[] = [
       lesson('Async/Await', 'async und await machen Promise-Code linear lesbar. Trotzdem musst du Fehler behandeln, weil asynchrone Fehler als abgelehnte Promises weiterlaufen.', 'async function completeLesson(id) {\n  try {\n    return await api.complete(id);\n  } catch (error) {\n    console.error(error);\n    throw error;\n  }\n}', 'Schreibe eine async Funktion zum Speichern von Progress.', 'Catch, logge und wirf weiter, wenn Caller reagieren sollen.', 'Fehler still verschlucken.', 'intermediate')
     ])
   ]),
+  course('typescript', 'TypeScript', 'TS', 'Stabile Frontend- und Backend-Typen für echte Produktentwicklung.', '#7dd3fc', 'from-[#7dd3fc] to-[#2563eb]', 'TS', 'typescript', [
+    module('Typen im Alltag', 'Alltagsnahe Typen, Unions und Narrowing sauber einsetzen.', [
+      lesson('Domain Types', 'TypeScript hilft dir, Produktbegriffe direkt im Code sichtbar zu machen. Gute Typen beschreiben nicht nur technische Formen, sondern echte Regeln wie Status, XP oder Kurs-IDs.', 'type LessonStatus = "open" | "done";\ntype Lesson = {\n  id: string;\n  title: string;\n  status: LessonStatus;\n};\n\nconst nextLesson: Lesson = { id: "ts-types", title: "Types", status: "open" };', 'Erstelle einen Typ für eine Kurskarte mit id, title, xp und status.', 'Modelliere fachliche Zustände als konkrete Union statt als beliebigen String.', 'Alle Felder als string typisieren, nur damit der Compiler ruhig ist.'),
+      lesson('Union Types', 'Union Types beschreiben kontrollierte Varianten. Sie sind stark, wenn ein Wert nur bestimmte Zustände annehmen darf und die UI je Zustand anders reagieren muss.', 'type SaveState = "idle" | "saving" | "saved" | "error";\n\nfunction labelFor(state: SaveState): string {\n  if (state === "saving") return "Saving...";\n  return "Ready";\n}', 'Baue einen Union Type für Ladezustände und gib je Zustand ein Label zurück.', 'Halte erlaubte Zustände explizit und klein.', 'Statuswerte als freie Texte durch die App reichen.'),
+      lesson('Narrowing', 'Narrowing macht unsichere Werte Schritt für Schritt konkret. Dadurch kannst du Daten aus Formularen, APIs oder localStorage prüfen, bevor dein Code damit arbeitet.', 'function parseXp(value: number | string): number {\n  if (typeof value === "string") {\n    return Number(value);\n  }\n  return value;\n}', 'Schreibe eine Funktion, die number oder string annimmt und eine Zahl zurückgibt.', 'Prüfe Varianten nah an der Grenze, an der Daten hereinkommen.', 'Mit as number behaupten, dass schon alles passt.', 'intermediate')
+    ]),
+    module('Sichere APIs', 'Interfaces, Generics und unknown für API-nahe Grenzen nutzen.', [
+      lesson('Interfaces', 'Interfaces sind gute Verträge für Objekte, die von mehreren Stellen verwendet werden. Sie helfen besonders bei Komponenten-Props, Service-Antworten und Repository-Grenzen.', 'interface CourseSummary {\n  readonly id: string;\n  title: string;\n  completedLessons: number;\n}\n\nconst summary: CourseSummary = { id: "react", title: "React", completedLessons: 4 };', 'Definiere ein Interface für einen gespeicherten Lernfortschritt.', 'Nutze readonly für IDs, die nach dem Erzeugen nicht geändert werden sollen.', 'IDs nachträglich an vielen Stellen überschreiben.'),
+      lesson('Generics', 'Generics machen wiederverwendbare Funktionen typsicher, ohne Informationen zu verlieren. Sie passen gut zu Listen, API-Antworten und kleinen Helfern.', 'function firstItem<T>(items: T[]): T | undefined {\n  return items[0];\n}\n\nconst firstTitle = firstItem(["Types", "React"]);', 'Schreibe eine generische Funktion, die das letzte Element einer Liste zurückgibt.', 'Nutze Generics, wenn derselbe Ablauf mit verschiedenen Typen arbeitet.', 'any verwenden und danach hoffen, dass der Rückgabetyp stimmt.', 'intermediate'),
+      lesson('Unknown validieren', 'unknown ist ehrlicher als any, weil du vor der Nutzung prüfen musst. Gerade an API-, Storage- und KI-Grenzen schützt dich das vor stillen Laufzeitfehlern.', 'function readTitle(input: unknown): string {\n  if (typeof input === "object" && input !== null && "title" in input) {\n    return String(input.title);\n  }\n  return "Untitled";\n}', 'Lies ein title-Feld aus unknown und gib einen sicheren Fallback zurück.', 'Validiere unbekannte Daten, bevor du Felder verwendest.', 'API-Antworten direkt als fertige Domain-Objekte casten.', 'intermediate')
+    ]),
+    module('Produktive Patterns', 'Utility Types, discriminated unions und async Ergebnisse modellieren.', [
+      lesson('Utility Types', 'Utility Types ersparen doppelte Typdefinitionen. Pick, Omit und Partial sind besonders praktisch, wenn Formulare, Updates und Listenansichten nur Teile eines Modells brauchen.', 'type UserProfile = { id: string; name: string; email: string; xp: number };\ntype ProfilePreview = Pick<UserProfile, "name" | "xp">;\n\nconst preview: ProfilePreview = { name: "Mina", xp: 420 };', 'Erzeuge aus einem Profiltyp einen Preview-Typ mit name und xp.', 'Leite Varianten aus bestehenden Typen ab, wenn sie fachlich zusammengehören.', 'Fast gleiche Typen per Copy Paste auseinanderlaufen lassen.'),
+      lesson('Discriminated Unions', 'Discriminated Unions machen Varianten sicher unterscheidbar. Ein gemeinsames type-Feld hilft dem Compiler und den Lesern, jeden Fall bewusst zu behandeln.', 'type Result<T> = { type: "success"; data: T } | { type: "failure"; error: string };\n\nfunction message(result: Result<string>): string {\n  return result.type === "success" ? result.data : result.error;\n}', 'Modelliere Erfolg und Fehler einer Quizauswertung als discriminated union.', 'Nutze ein gemeinsames Diskriminator-Feld für Varianten.', 'Erfolg und Fehler in einem Objekt mit vielen optionalen Feldern mischen.', 'advanced'),
+      lesson('Async Result Types', 'Asynchrone Funktionen sollten ihren Erfolgs- und Fehlerweg sichtbar machen. Kleine Result-Typen helfen, UI-Zustände zu rendern, ohne Exceptions überall zu verstreuen.', 'type LoadResult = { ok: true; lessons: string[] } | { ok: false; reason: string };\n\nasync function loadLessonTitles(): Promise<LoadResult> {\n  return { ok: true, lessons: ["Types", "React"] };\n}', 'Schreibe einen Promise-Rückgabetyp für erfolgreich oder fehlgeschlagen geladene Kurse.', 'Mache den Fehlerweg im Rückgabetyp sichtbar, wenn die UI darauf reagieren soll.', 'Nur console.error nutzen und trotzdem undefined zurückgeben.', 'advanced')
+    ])
+  ]),
+  course('react', 'React', 'React', 'Komponenten, State, Effekte und robuste App-Oberflächen.', '#61dafb', 'from-[#61dafb] to-[#1d4ed8]', 'RX', 'tsx', [
+    module('Komponenten', 'Props, State und Events als Bausteine moderner Interfaces.', [
+      lesson('Props', 'Props sind der Vertrag einer Komponente. Wenn du Props klein und typisiert hältst, bleibt klar, welche Daten eine Komponente braucht und was sie selbst entscheiden darf.', 'type CourseCardProps = {\n  title: string;\n  xp: number;\n};\n\nexport function CourseCard({ title, xp }: CourseCardProps) {\n  return <article><h2>{title}</h2><p>{xp} XP</p></article>;\n}', 'Baue eine typisierte Card-Komponente mit title und progress.', 'Übergib Daten über Props statt globale Werte zu lesen.', 'Komponenten direkt aus localStorage lesen lassen.'),
+      lesson('State', 'State beschreibt UI-Daten, die sich durch Interaktion ändern. Halte State so klein wie möglich und berechne ableitbare Werte beim Rendern.', 'const [completed, setCompleted] = useState(false);\n\n<button onClick={() => setCompleted(true)}>\n  Mark done\n</button>;', 'Erstelle einen State für eine ausgewählte Quizoption.', 'Speichere nur den kleinsten notwendigen Zustand.', 'Dieselbe Information in mehreren State-Werten doppelt halten.'),
+      lesson('Events', 'Event Handler verbinden Nutzeraktionen mit Zustandsänderungen. Gute Handler haben sprechende Namen und enthalten nur die Logik, die direkt zur Interaktion gehört.', 'function handleAnswerClick(answerId: string) {\n  setSelectedAnswer(answerId);\n}\n\n<button onClick={() => handleAnswerClick("a")}>Answer A</button>;', 'Schreibe einen Click Handler für eine Antwortauswahl.', 'Benenne Handler nach der Nutzeraktion.', 'Komplexe Datenberechnung direkt im JSX verstecken.')
+    ]),
+    module('Datenfluss', 'Effects, abgeleitete Daten und Listen stabil rendern.', [
+      lesson('Effects', 'Effects sind für Synchronisation mit der Außenwelt da: Netzwerk, Browser APIs oder Subscriptions. Für reine Berechnungen brauchst du normalerweise keinen Effect.', 'useEffect(() => {\n  document.title = `${completedCount} lessons done`;\n}, [completedCount]);', 'Setze den Dokumenttitel abhängig von abgeschlossenen Lektionen.', 'Nutze Effects für Seiteneffekte, nicht für normale Berechnungen.', 'Jede State-Änderung in einem Effect nachbauen.', 'intermediate'),
+      lesson('Derived State', 'Abgeleiteter State entsteht aus vorhandenen Daten. Wenn du ihn speicherst, riskierst du Widersprüche; berechne ihn lieber direkt oder mit useMemo bei teuren Listen.', 'const completedLessons = lessons.filter((lesson) => lesson.done);\nconst progress = completedLessons.length / lessons.length;', 'Berechne Fortschritt aus einer Lektionsliste.', 'Leite Fortschritt aus echten Daten ab.', 'completedCount separat speichern und manuell synchron halten.', 'intermediate'),
+      lesson('Lists and Keys', 'Listen brauchen stabile Keys, damit React Elemente sauber zuordnen kann. IDs aus deinen Daten sind fast immer besser als Array-Indizes.', 'return lessons.map((lesson) => (\n  <li key={lesson.id}>{lesson.title}</li>\n));', 'Rendere eine Liste von Kursmodulen mit stabilen Keys.', 'Nutze fachliche IDs als key.', 'Array-Indizes als Standard-Key verwenden.', 'intermediate')
+    ]),
+    module('App-Praxis', 'Formulare, Loading States und Komponentengrenzen produktreif bauen.', [
+      lesson('Forms', 'Formulare sind kontrollierte Datenflüsse: Eingabe lesen, validieren, absenden und Feedback zeigen. Schon kleine Formulare profitieren von klaren Feldnamen.', 'const [displayName, setDisplayName] = useState("");\n\n<input value={displayName} onChange={(event) => setDisplayName(event.target.value)} />;', 'Baue ein kontrolliertes Eingabefeld für den Anzeigenamen.', 'Halte Formularwerte explizit im State.', 'Input-Werte erst beim Debuggen aus dem DOM auslesen.'),
+      lesson('Loading and Error States', 'Gute Apps zeigen nicht nur Erfolg, sondern auch Warten und Fehler. Diese Zustände sind Teil der UX und sollten im Komponentenmodell sichtbar sein.', 'if (status === "loading") return <p>Loading...</p>;\nif (status === "error") return <p>Try again.</p>;\nreturn <CourseList courses={courses} />;', 'Rendere Loading, Error und Success für eine Kursliste.', 'Plane UI-Zustände als erstes mit ein.', 'Nur leere Flächen zeigen, bis Daten zufällig da sind.', 'intermediate'),
+      lesson('Component Boundaries', 'Komponentengrenzen sollten echten Verantwortungen folgen. Eine gute Grenze trennt Datenbeschaffung, Layout und wiederverwendbare UI, ohne unnötig viele Dateien zu erzeugen.', 'export function CourseSection({ courses }: { courses: Course[] }) {\n  return <section>{courses.map((course) => <CourseCard key={course.id} {...course} />)}</section>;\n}', 'Extrahiere eine Section, die mehrere CourseCards rendert.', 'Schneide Komponenten nach Verantwortung und Datenbedarf.', 'Eine komplette Seite als einzige riesige Komponente lassen.', 'advanced')
+    ])
+  ]),
+  course('git', 'Git & GitHub', 'Git', 'Versionierung, Branches, Pull Requests und Team-Workflows.', '#f97316', 'from-[#f97316] to-[#b45309]', 'GT', 'bash', [
+    module('Grundlagen', 'Status, Staging, Commits und Verlauf verstehen.', [
+      lesson('Status lesen', 'git status ist dein Cockpit. Bevor du etwas committest oder pushst, zeigt es dir Branch, geänderte Dateien und ob etwas staged ist.', 'git status\n\ngit diff -- src/data/courses.ts', 'Prüfe den Arbeitsstand und schaue dir eine konkrete Datei-Diff an.', 'Lies Status und Diff, bevor du Dateien bündelst.', 'Blind alles stagen, ohne die Änderung gesehen zu haben.'),
+      lesson('Staging', 'Staging ist die bewusste Auswahl für den nächsten Commit. Dadurch kannst du zusammengehörige Änderungen bündeln und unfertige Arbeit draußen lassen.', 'git add src/data/courses.ts\ngit add src/data/courses.test.ts\n\ngit status', 'Stage nur Kursdaten und Tests für einen Curriculum-Commit.', 'Stage nach fachlichem Zusammenhang, nicht nach Bequemlichkeit.', 'git add . verwenden, ohne den Status zu prüfen.'),
+      lesson('Commits', 'Ein Commit ist ein nachvollziehbarer Schritt im Projektverlauf. Gute Commit Messages erklären Art und Absicht der Änderung, damit Review und Rollback leichter werden.', 'git commit -m "feat: expand learning curriculum"\n\ngit log --oneline -3', 'Erstelle eine Conventional-Commit-Message für eine neue Lernfunktion.', 'Halte Commits klein und benenne den Nutzen.', 'Mehrere unabhängige Features in einen Sammelcommit packen.')
+    ]),
+    module('Branches', 'Branching, Merging und Rebase ohne Chaos einsetzen.', [
+      lesson('Branch erstellen', 'Branches geben dir einen separaten Arbeitsbereich für ein Feature. Sie helfen besonders, wenn mehrere Entwickler oder KI-Agenten parallel am Projekt arbeiten.', 'git switch -c codex/expand-curriculum\n\ngit branch --show-current', 'Lege einen Feature-Branch für Kursinhalte an und prüfe den Namen.', 'Nutze sprechende Branch-Namen mit Aufgabe oder Ticket.', 'Direkt auf main experimentieren, wenn parallele Arbeit läuft.', 'intermediate'),
+      lesson('Merge', 'Ein Merge verbindet abgeschlossene Arbeit mit einem Zielbranch. Vorher sollten Tests laufen und der Branch aktuell genug sein, damit Konflikte klein bleiben.', 'git switch main\ngit merge codex/expand-curriculum\n\ngit status', 'Beschreibe den Ablauf, um einen fertigen Curriculum-Branch in main zu mergen.', 'Merge erst nach grünen Tests und geprüftem Diff.', 'Konflikte lösen, ohne die betroffenen Dateien zu verstehen.', 'intermediate'),
+      lesson('Rebase', 'Rebase setzt deine Commits auf eine neuere Basis. Das macht Verlauf oft lesbarer, verlangt aber Disziplin, weil veröffentlichte Historie nicht leichtfertig umgeschrieben werden sollte.', 'git fetch origin\ngit rebase origin/main\n\ngit status', 'Skizziere, wann du einen lokalen Feature-Branch auf origin/main rebasen würdest.', 'Nutze Rebase für lokale Feature-Branches mit bewusstem Blick auf Konflikte.', 'Geteilte Branches umschreiben, ohne das Team zu informieren.', 'advanced')
+    ]),
+    module('Teamflow', 'Remote, Pull Requests und Konflikte professionell handhaben.', [
+      lesson('Push', 'Push veröffentlicht lokale Commits auf GitHub. Vorher solltest du wissen, welche Commits voraus sind und ob die richtigen Dateien enthalten sind.', 'git log --oneline origin/main..HEAD\n\ngit push origin main', 'Prüfe lokale Commits und pushe danach den aktuellen Branch.', 'Kontrolliere vorauslaufende Commits vor dem Push.', 'Ungeprüft pushen und hoffen, dass CI es schon richtet.'),
+      lesson('Pull Requests', 'Pull Requests sind Kommunikationsfläche und Qualitätskontrolle. Eine gute Beschreibung erklärt Ziel, Tests und Risiken, nicht nur welche Dateien geändert wurden.', 'gh pr create --title "Expand curriculum" --body "Adds TypeScript, React, Git, SQL, and Backend API tracks."', 'Formuliere Titel und Body für einen Curriculum-Pull-Request.', 'Beschreibe Nutzen, Prüfungen und offene Punkte.', 'PRs ohne Kontext öffnen und Reviewer raten lassen.', 'intermediate'),
+      lesson('Konflikte lösen', 'Merge-Konflikte sind keine Katastrophe, sondern widersprüchliche Änderungen an derselben Stelle. Löse sie fachlich, teste danach und prüfe die finale Datei sorgfältig.', 'git status\n\ngit diff --check\n\ngit add src/data/courses.ts', 'Beschreibe einen sicheren Ablauf nach einem Konflikt in Kursdaten.', 'Prüfe Konfliktdateien, Whitespace und Tests nach der Lösung.', 'Konfliktmarker entfernen, ohne den Inhalt zu validieren.', 'intermediate')
+    ])
+  ]),
+  course('sql', 'SQL', 'SQL', 'Daten abfragen, modellieren und sicher verändern.', '#22c55e', 'from-[#22c55e] to-[#0f766e]', 'DB', 'sql', [
+    module('Lesen', 'SELECT, WHERE und Sortierung für App-Daten.', [
+      lesson('SELECT', 'SELECT ist die Grundlage jeder Datenansicht. Gute Queries wählen gezielt Spalten aus, damit API und UI nur die Daten bekommen, die sie wirklich brauchen.', 'select lesson_id, completed_at\nfrom lesson_progress\nwhere user_id = \'user_123\';', 'Lies abgeschlossene Lektionen eines Users mit ausgewählten Spalten.', 'Wähle konkrete Spalten statt alles mit select star zu laden.', 'Jede Abfrage mit select * beginnen.'),
+      lesson('WHERE', 'WHERE übersetzt fachliche Filter in Datenbanklogik. Wenn du Filter früh in SQL formulierst, muss die App weniger unnötige Daten laden und sortieren.', 'select id, title, difficulty\nfrom lessons\nwhere difficulty = \'intermediate\';', 'Filtere Lektionen nach Schwierigkeit.', 'Formuliere Filter in der Query, wenn die Datenbank sie effizient anwenden kann.', 'Alle Zeilen laden und im Frontend filtern.'),
+      lesson('ORDER BY', 'Sortierung gehört zur fachlichen Aussage einer Liste. Ohne ORDER BY kann die Datenbank Reihenfolgen ändern, auch wenn es lokal zufällig stabil wirkt.', 'select title, xp\nfrom lessons\norder by xp desc, title asc;', 'Sortiere Lektionen nach XP absteigend und Titel aufsteigend.', 'Setze ORDER BY, wenn Reihenfolge für Nutzer sichtbar ist.', 'Sich auf zufällige Tabellenreihenfolge verlassen.')
+    ]),
+    module('Modellieren', 'Tabellen, Beziehungen und Indizes für Fortschrittsdaten bauen.', [
+      lesson('CREATE TABLE', 'Tabellenmodellierung macht Regeln dauerhaft. Pflichtfelder, Primärschlüssel und Datentypen sollten ausdrücken, was deine App wirklich garantiert.', 'create table lesson_progress (\n  user_id uuid not null,\n  lesson_id text not null,\n  completed_at timestamptz not null,\n  primary key (user_id, lesson_id)\n);', 'Erstelle eine Tabelle für abgeschlossene Lektionen.', 'Setze Primärschlüssel so, dass doppelte Completions verhindert werden.', 'Duplikate später nur im Code herausfiltern.', 'intermediate'),
+      lesson('Foreign Keys', 'Foreign Keys schützen Beziehungen zwischen Tabellen. Sie verhindern, dass Fortschritt auf nicht existierende Nutzer oder Lektionen zeigt.', 'create table quiz_attempts (\n  id uuid primary key,\n  user_id uuid references profiles(id),\n  lesson_id text not null\n);', 'Ergänze einen Fremdschlüssel von Attempts auf Profile.', 'Lass die Datenbank wichtige Beziehungen absichern.', 'Referenzen nur als lose Strings ohne Constraint speichern.', 'intermediate'),
+      lesson('Indexes', 'Indizes beschleunigen häufige Suchmuster, kosten aber Speicher und Schreibzeit. Setze sie dort, wo echte Queries regelmäßig filtern oder sortieren.', 'create index lesson_progress_user_idx\non lesson_progress (user_id, completed_at desc);', 'Lege einen Index für die Fortschrittsliste eines Users an.', 'Indexiere konkrete Zugriffsmuster statt jede Spalte blind.', 'Indizes erst hinzufügen, nachdem alles langsam geworden ist.', 'advanced')
+    ]),
+    module('Ändern', 'INSERT, UPDATE, DELETE und Transaktionen verantwortungsvoll nutzen.', [
+      lesson('INSERT', 'INSERT erzeugt neue Daten und sollte zu den Constraints der Tabelle passen. Bei Fortschritt ist besonders wichtig, doppelte Einträge kontrolliert zu behandeln.', 'insert into lesson_progress (user_id, lesson_id, completed_at)\nvalues (\'00000000-0000-0000-0000-000000000001\', \'sql-select\', now());', 'Füge einen abgeschlossenen Lektionsstand ein.', 'Schreibe Einfügungen passend zu Pflichtfeldern und Constraints.', 'Pflichtwerte leer lassen und auf spätere Korrektur hoffen.'),
+      lesson('UPDATE', 'UPDATE ändert bestehende Daten und braucht fast immer ein präzises WHERE. Ohne Filter kann eine kleine Änderung die komplette Tabelle betreffen.', 'update profiles\nset display_name = \'Mina\'\nwhere id = \'00000000-0000-0000-0000-000000000001\';', 'Aktualisiere den Anzeigenamen eines Profils über die ID.', 'Nutze eindeutige Filter bei Änderungen.', 'UPDATE ohne WHERE in produktiven Daten ausführen.', 'intermediate'),
+      lesson('Transactions', 'Transaktionen halten zusammengehörige Änderungen konsistent. Wenn XP, Completion und Activity gemeinsam gespeichert werden, sollten sie gemeinsam gelingen oder scheitern.', 'begin;\ninsert into lesson_progress (user_id, lesson_id, completed_at) values (\'00000000-0000-0000-0000-000000000001\', \'sql-transactions\', now());\nupdate profiles set xp = xp + 35 where id = \'00000000-0000-0000-0000-000000000001\';\ncommit;', 'Kombiniere Completion und XP-Update in einer Transaktion.', 'Nutze Transaktionen für fachlich zusammengehörige Schreibvorgänge.', 'Halb gespeicherte Zustände akzeptieren und später reparieren.', 'advanced')
+    ])
+  ]),
+  course('backend', 'Backend APIs', 'API', 'HTTP, Validierung, Services und produktionsnahe API-Grenzen.', '#a78bfa', 'from-[#a78bfa] to-[#7c3aed]', 'API', 'typescript', [
+    module('HTTP APIs', 'Routes, Statuscodes und Request-Validierung bewusst gestalten.', [
+      lesson('Health Route', 'Eine Health Route ist klein, aber wichtig für Deployment und Monitoring. Sie sollte schnell antworten und keine schwere Fachlogik oder Datenbankabfragen erzwingen.', 'app.get("/health", (_request, response) => {\n  response.json({ status: "ok" });\n});', 'Erstelle eine Health Route, die JSON zurückgibt.', 'Halte Health Checks leichtgewichtig und eindeutig.', 'Health Checks mit komplexer Geschäftslogik vermischen.'),
+      lesson('Status Codes', 'Statuscodes sind Teil des API-Vertrags. Clients können besser reagieren, wenn Erfolg, Validierungsfehler und fehlende Ressourcen unterscheidbar sind.', 'app.post("/lessons/:lessonId/complete", (request, response) => {\n  response.status(201).json({ lessonId: request.params.lessonId });\n});', 'Gib bei erfolgreicher Completion einen passenden Statuscode zurück.', 'Nutze Statuscodes als klare Signale für Clients.', 'Immer 200 senden, egal was passiert.'),
+      lesson('Validation', 'Validierung gehört an die Grenze der API. Je früher ungültige Eingaben gestoppt werden, desto weniger defensive Sonderfälle brauchst du im Service-Code.', 'const schema = z.object({\n  lessonId: z.string().min(1),\n  userId: z.string().uuid()\n});\n\nconst input = schema.parse(request.body);', 'Validiere lessonId und userId eines Completion Requests.', 'Validiere externe Eingaben vor der Fachlogik.', 'Request Bodies direkt an Datenbankfunktionen weiterreichen.', 'intermediate')
+    ]),
+    module('Services', 'Businesslogik, Repositories und Fehler sauber trennen.', [
+      lesson('Service Function', 'Services kapseln fachliche Regeln unabhängig vom Webframework. Dadurch kannst du Regeln testen, ohne HTTP-Requests oder Router zu simulieren.', 'export function awardCompletionXp(currentXp: number, reward: number): number {\n  return currentXp + reward;\n}', 'Schreibe eine Service-Funktion zum Berechnen neuer XP.', 'Halte fachliche Regeln außerhalb dünner Route Handler.', 'Alle Regeln direkt in Express-Callbacks schreiben.'),
+      lesson('Repository Boundary', 'Repositories verstecken, wie Daten gespeichert werden. Das ist besonders nützlich, wenn localStorage später durch Supabase oder PostgreSQL ersetzt wird.', 'type ProgressRepository = {\n  completeLesson(userId: string, lessonId: string): Promise<void>;\n};\n\nasync function completeLesson(repository: ProgressRepository, userId: string, lessonId: string) {\n  await repository.completeLesson(userId, lessonId);\n}', 'Definiere ein Repository-Interface für Lesson Completion.', 'Trenne Speicherzugriff über eine kleine Schnittstelle.', 'Datenbankdetails in jeder Route wiederholen.', 'intermediate'),
+      lesson('Typed Errors', 'Nicht jeder Fehler ist gleich. Eigene Error-Typen oder strukturierte Resultate helfen, Validierungsfehler, fehlende Daten und interne Probleme korrekt abzubilden.', 'class NotFoundError extends Error {\n  constructor(message: string) {\n    super(message);\n    this.name = "NotFoundError";\n  }\n}', 'Erstelle einen Fehler für nicht gefundene Ressourcen.', 'Unterscheide fachliche Fehler von technischen Ausfällen.', 'Alle Fehler als generic Error behandeln.', 'advanced')
+    ]),
+    module('Production', 'Auth, Rate Limits und Logging als Teil des Designs behandeln.', [
+      lesson('Auth Context', 'Authentifizierung sollte früh in der Request-Pipeline geklärt werden. Danach arbeitet die Fachlogik mit einem klaren User-Kontext statt mit rohen Tokens.', 'type AuthenticatedRequest = Request & {\n  user: { id: string; role: "learner" | "admin" };\n};', 'Typisiere einen Request mit angemeldetem User-Kontext.', 'Reiche geprüfte User-Daten weiter, nicht rohe Tokens.', 'JWTs in jeder Service-Funktion neu parsen.', 'intermediate'),
+      lesson('Rate Limits', 'Rate Limits schützen APIs vor Missbrauch und teuren Wiederholungen. Besonders KI-Hilfe, Login und Schreibendpunkte brauchen Grenzen und verständliche Fehlermeldungen.', 'app.use("/ai-hints", rateLimit({\n  windowMs: 60_000,\n  limit: 10\n}));', 'Setze ein Rate Limit für KI-Hilfe-Anfragen.', 'Begrenze teure oder sensible Endpunkte bewusst.', 'Alle Nutzer unbegrenzt KI-Anfragen senden lassen.', 'advanced'),
+      lesson('Structured Logging', 'Strukturierte Logs machen Fehler auffindbar, ohne sensible Daten zu verraten. Logge IDs, Status und Dauer, aber keine Tokens, Passwörter oder vollständigen Prompts.', 'logger.info({ route: "/lessons/:id/complete", status: 201, durationMs: 42 }, "lesson completed");', 'Logge eine abgeschlossene Lesson Completion strukturiert.', 'Logge Ereignisse mit Kontext und ohne Secrets.', 'Komplette Request Bodies inklusive Secrets ausgeben.', 'intermediate')
+    ])
+  ]),
   course('automation', 'AI Automation', 'AI', 'No-Code-Flows, Webhooks, KI-Tools und agentische Workflows praxisnah modellieren.', '#7dd3fc', 'from-[#7dd3fc] to-[#8b5cf6]', 'AI', 'json', [
     module('Automation-Grundlagen', 'Trigger, Actions und Datenmapping wie in Make, Zapier oder n8n denken.', [
       lesson('Trigger und Actions', 'Eine Automation startet mit einem Trigger und führt danach klar getrennte Actions aus. Gute Flows sind klein, beobachtbar und haben eindeutige Eingaben, damit Fehler schnell gefunden werden.', '{\n  "trigger": "new_lead",\n  "action": "create_task",\n  "target": "crm"\n}', 'Modelliere eine Automation, die aus einem neuen Lead automatisch eine CRM-Aufgabe erzeugt.', 'Trenne Auslöser, Aktion und Zielsystem klar.', 'Alles in einen riesigen unbenannten Flow packen.'),
@@ -230,6 +315,10 @@ function starterCodeFor(language: string) {
     html: '<!-- Write your markup here -->\n',
     css: '/* Write your styles here */\n',
     javascript: '// Write your solution here\n',
+    typescript: '// Write your TypeScript solution here\n',
+    tsx: '// Write your React component here\n',
+    bash: '# Write your Git commands here\n',
+    sql: '-- Write your SQL here\n',
     json: '{\n  "workflow": ""\n}\n'
   };
 
@@ -288,6 +377,14 @@ function buildConceptChecks(code: string, bestPractice: string): CodingConceptCh
     'fetch',
     'response.ok',
     'type ',
+    'interface',
+    'readonly',
+    'unknown',
+    'promise<',
+    'usestate',
+    'useeffect',
+    'key=',
+    'onclick',
     'function',
     'defineprops',
     'export function',
@@ -295,6 +392,29 @@ function buildConceptChecks(code: string, bestPractice: string): CodingConceptCh
     'async function',
     'try',
     'catch',
+    'git status',
+    'git add',
+    'git commit',
+    'git switch',
+    'git merge',
+    'git rebase',
+    'git push',
+    'gh pr create',
+    'from ',
+    'order by',
+    'create table',
+    'primary key',
+    'references',
+    'create index',
+    'insert into',
+    'update',
+    'begin',
+    'commit',
+    'z.object',
+    'response.status',
+    'request.body',
+    'ratelimit',
+    'logger.info',
     '"trigger"',
     '"action"',
     '"email"',
@@ -335,6 +455,10 @@ const blankTokensByLanguage: Record<string, string[]> = {
   csharp: ['interface', 'static', 'using', 'await', 'async', 'var', 'new', 'Console.WriteLine', 'class', 'return', 'public'],
   java: ['System.out.println', 'interface', 'stream', 'static', 'final', 'private', 'record', 'new', 'class', 'return', 'void'],
   javascript: ['addEventListener', 'defineProps', 'await', 'async', 'fetch', 'export', 'function', 'type', 'return', 'const', 'let'],
+  typescript: ['interface', 'readonly', 'unknown', 'Promise', 'type', 'return', 'const', 'function', 'async', 'await', 'string', 'number'],
+  tsx: ['useState', 'useEffect', 'return', 'export', 'function', 'type', 'key', 'onClick', 'className'],
+  bash: ['git', 'status', 'add', 'commit', 'switch', 'branch', 'merge', 'rebase', 'push', 'diff'],
+  sql: ['select', 'from', 'where', 'order', 'create', 'primary', 'references', 'index', 'insert', 'update', 'begin', 'commit'],
   css: ['grid', 'flex', 'transition', 'animation', 'min-height', 'media', 'padding', 'gap', 'transform']
 };
 

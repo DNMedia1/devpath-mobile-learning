@@ -112,6 +112,61 @@ export const projects: PracticeProject[] = [
     solutionNotes: ['Zuverlässige UI entsteht vor allem durch klares State Modeling.']
   },
   {
+    id: 'typescript-domain-models',
+    courseId: 'typescript',
+    title: 'Typed Learning Domain',
+    difficulty: 'intermediate',
+    duration: '75 Min.',
+    summary: 'Modelliere Kurse, Lektionen, Fortschritt und API-Ergebnisse mit sicheren TypeScript-Typen.',
+    requirements: ['Definiere Union Types für Statuswerte.', 'Nutze Interfaces für Course, Lesson und Progress.', 'Modelliere API-Erfolg und Fehler als discriminated union.'],
+    hints: ['Starte mit den echten Begriffen aus der App.', 'Vermeide any an API-Grenzen.'],
+    solutionNotes: ['Eine starke Lösung macht ungültige Zustände schwer darstellbar und zwingt Fehlerfälle sichtbar in die UI.']
+  },
+  {
+    id: 'react-lesson-dashboard',
+    courseId: 'react',
+    title: 'Lesson Dashboard',
+    difficulty: 'intermediate',
+    duration: '2 Std.',
+    summary: 'Baue ein React-Dashboard mit Kurskarten, Fortschritt, Loading State und Antwortauswahl.',
+    requirements: ['Rendere Kurskarten aus Props.', 'Verwalte ausgewählte Antworten mit State.', 'Zeige Loading, Error und Success State.'],
+    hints: ['Halte Card, List und Page getrennt.', 'Berechne Fortschritt aus vorhandenen Daten.'],
+    solutionNotes: ['Die beste Lösung trennt Datenfluss und UI-Komponenten, ohne unnötig viele Wrapper zu erzeugen.']
+  },
+  {
+    id: 'git-release-workflow',
+    courseId: 'git',
+    title: 'Feature Release Workflow',
+    difficulty: 'basic',
+    duration: '45 Min.',
+    summary: 'Simuliere einen sauberen Git-Workflow von Branch über Commit bis Pull Request.',
+    requirements: ['Erstelle einen Feature-Branch.', 'Stage nur zusammengehörige Dateien.', 'Formuliere eine klare PR-Beschreibung mit Tests.'],
+    hints: ['Nutze git status vor jedem großen Schritt.', 'Prüfe lokale Commits vor dem Push.'],
+    solutionNotes: ['Ein guter Workflow macht nachvollziehbar, warum eine Änderung passiert ist und wie sie geprüft wurde.']
+  },
+  {
+    id: 'sql-progress-schema',
+    courseId: 'sql',
+    title: 'Progress Database Schema',
+    difficulty: 'intermediate',
+    duration: '90 Min.',
+    summary: 'Entwirf Tabellen und Queries für gespeicherten Lernfortschritt.',
+    requirements: ['Erstelle Tabellen für Profile, Lessons und Progress.', 'Verhindere doppelte Completions per Primary Key.', 'Schreibe Queries für Dashboard und Streak-Auswertung.'],
+    hints: ['Starte mit Zugriffsmustern der App.', 'Indexiere User- und Zeitfilter bewusst.'],
+    solutionNotes: ['Das Schema sollte Fachregeln in Constraints ausdrücken, nicht nur im Anwendungscode.']
+  },
+  {
+    id: 'backend-progress-api',
+    courseId: 'backend',
+    title: 'Progress API Slice',
+    difficulty: 'advanced',
+    duration: '2-3 Std.',
+    summary: 'Implementiere einen API-Slice für Lesson Completion mit Validierung, Service und Repository-Grenze.',
+    requirements: ['Expose POST /lessons/:lessonId/complete.', 'Validiere Request Body und Auth-Kontext.', 'Kapsle Speicherung hinter einem Repository Interface.'],
+    hints: ['Teste die Service-Funktion ohne HTTP.', 'Plane klare Fehler für Not Found und Validation.'],
+    solutionNotes: ['Eine robuste Lösung trennt Route, Validation, Service und Persistence so, dass Supabase später sauber angeschlossen werden kann.']
+  },
+  {
     id: 'automation-lead-router',
     courseId: 'automation',
     title: 'Lead Routing Automation',

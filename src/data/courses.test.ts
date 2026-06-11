@@ -4,8 +4,12 @@ import { courses } from './courses';
 
 describe('course content', () => {
   it('contains complete language and automation tracks', () => {
-    expect(courses).toHaveLength(7);
+    expect(courses).toHaveLength(12);
     expect(courses.find((course) => course.id === 'python')?.modules.flatMap((module) => module.lessons)).toHaveLength(39);
+
+    expect(courses.map((course) => course.id)).toEqual(
+      expect.arrayContaining(['typescript', 'react', 'git', 'sql', 'backend'])
+    );
 
     for (const course of courses) {
       expect(course.modules.length).toBeGreaterThanOrEqual(3);
