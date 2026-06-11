@@ -36,26 +36,33 @@ npm run preview
 
 ## Produktkonzept
 
-Version 1 läuft komplett lokal und fühlt sich auf dem Smartphone wie eine App an:
+Version 1 läuft komplett lokal, fühlt sich auf dem Smartphone wie eine App an und skaliert responsiv bis zum Desktop:
 
-- Dashboard mit Weiterlernen-Karte
+- Dashboard mit Weiterlernen-Karte und Tageszielen
+- responsive App-Shell: Bottom Navigation auf dem Handy, Sidebar auf Laptop und Desktop
 - sieben Kurs-Tracks: Python, C#, Java, HTML, CSS, JavaScript und AI Automation
 - Python als vertiefter Track mit 39 Lektionen über Grundlagen, Collections, Dateien, moderne Sprache, APIs, Daten, Testing und Automatisierung
 - mindestens drei Module und drei Lektionen pro Kurs
-- jede Lektion enthält Theorie, Codebeispiel, zwei Quizfragen, eine Schreibaufgabe und eine Praxisaufgabe
-- lokales Code-Feedback für fast richtige Lösungen mit Syntaxhinweisen, Konzeptchecks und Fortschrittswert
+- jede Lektion enthält Theorie, Codebeispiel, Lückentext-Aufgabe, zwei Quizfragen, eine Schreibaufgabe und eine Praxisaufgabe
+- Lesson-Navigation mit Schrittleiste auf dem Handy und Step-Sidebar auf dem Desktop
+- Code-Schreibmodus mit lokalem Feedback: Syntaxhinweise, Konzeptchecks und Fortschrittswert für fast richtige Lösungen
 - Quizmodus mit Schwierigkeitsfiltern und Wiederholung falscher Fragen
-- XP, Level, Streak, Tagesziel und Kursfortschritt
+- XP, Level, Streak und Kursfortschritt
+- Tagesziele als Daily Quests mit einmaligem Bonus-XP pro Tag
+- Badges für Lektionen, Streaks, Level, Quizleistung und Kursabschlüsse
+- motivierender Erfolgsbildschirm nach jeder Lektion mit XP, Level-Fortschritt, neuen Badges und Sprung zur nächsten Lektion
 - Praxisprojekte mit Anforderungen, Hinweisen und Lösungsnotizen
-- Profil, Fortschritt und Einstellungen
+- Profil mit Badge-Übersicht, Fortschritt und Einstellungen
 - Dark Mode als Standard mit optionalem Light Mode
 - PWA-Grundstruktur
 
 ## Architektur
 
-Kursinhalte liegen in `src/data/courses.ts` und nutzen die Domain-Modelle aus `src/models/learning.ts`. Die Fortschrittslogik liegt in `src/services/progressService.ts`; `src/store/ProgressContext.tsx` verbindet sie mit React und localStorage.
+Kursinhalte liegen in `src/data/courses.ts` und nutzen die Domain-Modelle aus `src/models/learning.ts`. Quizfragen, Lückentexte und Coding-Challenges werden deterministisch aus kompakten Lesson-Seeds generiert; die korrekte Quizoption liegt dabei nicht immer an derselben Position. Die Fortschrittslogik inklusive Tageszielen und Bonus-XP liegt in `src/services/progressService.ts`; `src/services/badgeService.ts` leitet Badges direkt aus dem Fortschritt ab, ohne zusätzlichen Speicher. `src/store/ProgressContext.tsx` verbindet alles mit React und localStorage.
 
 Die Code-Schreibaufgaben werden aus den Kursdaten erzeugt und in `src/services/codeFeedbackService.ts` lokal geprüft. Die Prüfung ersetzt keine echte Sandbox, gibt aber sofort Hilfe bei offenen Klammern, fehlenden Strings und wichtigen Konzepten wie `return`, `fetch`, semantischem HTML oder Automation-Feldern wie `trigger` und `steps`.
+
+Die App-Shell in `src/components/AppShell.tsx` rendert auf dem Handy eine Bottom Navigation und ab Laptop-Breite eine feste Sidebar; die Lektionsseite ergänzt auf dem Desktop eine eigene Step-Sidebar. UI-Erklärungen und Lerninhalte bleiben auf Deutsch, Code und Bezeichner auf Englisch.
 
 Die Struktur ist so vorbereitet, dass später ein Backend die lokalen Datenservices ersetzen kann. Seitenkomponenten bleiben für Darstellung und Interaktion zuständig; Persistenz, Scoring, Code-Feedback und Fortschrittsregeln liegen in Services.
 
