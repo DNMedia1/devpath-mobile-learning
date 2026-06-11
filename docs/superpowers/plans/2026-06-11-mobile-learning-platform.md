@@ -36,69 +36,13 @@
 - [x] Add fill-blank tasks, daily quests, badges, and lesson completion modal.
 - [x] Add responsive app shell with mobile bottom nav and desktop sidebar.
 - [x] Improve desktop course and module layouts.
+- [x] Prepare progress persistence boundary with a local repository adapter.
+- [x] Add Supabase planning artifacts with `.env.example` and backend roadmap.
 - [x] Verify current baseline with `npm test`, `npm run lint`, and `npm run build`.
 
 ## Next Backlog
 
-### Story 1: Prepare Progress Persistence Boundary
-
-**User Story:** As a learner, I want my progress model to be storage-agnostic so it can later sync across phone and laptop.
-
-**Acceptance Criteria:**
-
-- Progress loading/saving is accessed through a small repository interface.
-- Existing localStorage behavior remains unchanged.
-- `ProgressContext` does not need to know whether persistence is local or remote.
-- Existing progress tests still pass.
-
-**Likely Files:**
-
-- Create: `src/services/progressRepository.ts`
-- Modify: `src/store/ProgressContext.tsx`
-- Modify: `src/services/progressService.ts` only if normalization needs to move.
-- Test: `src/services/progressRepository.test.ts`
-
-**Verification:**
-
-- `npm test`
-- `npm run lint`
-- `npm run build`
-
-**Commit:**
-
-```bash
-git commit -m "refactor: prepare progress persistence boundary"
-```
-
-### Story 2: Add Supabase Planning Artifacts
-
-**User Story:** As a developer, I want a clear Supabase schema and environment setup so backend work can start without guessing.
-
-**Acceptance Criteria:**
-
-- `.env.example` documents required Supabase variables without secrets.
-- Docs describe tables, ownership, and RLS expectations.
-- README links to the backend setup section.
-- No runtime dependency is added unless implementation starts in the same story.
-
-**Likely Files:**
-
-- Create: `.env.example`
-- Create: `docs/backend/supabase-roadmap.md`
-- Modify: `README.md`
-
-**Verification:**
-
-- `npm run lint`
-- `npm run build`
-
-**Commit:**
-
-```bash
-git commit -m "docs: add supabase persistence roadmap"
-```
-
-### Story 3: Improve Core Screen Polish
+### Story 1: Improve Core Screen Polish
 
 **User Story:** As a learner, I want dashboard, quiz, projects, progress, and profile screens to feel consistent and easy to scan on mobile and desktop.
 
@@ -132,7 +76,7 @@ git commit -m "docs: add supabase persistence roadmap"
 git commit -m "feat: polish core learning screens"
 ```
 
-### Story 4: Expand Non-Python Curriculum
+### Story 2: Expand Non-Python Curriculum
 
 **User Story:** As a learner, I want JavaScript/TypeScript, React, Git/GitHub, SQL, Backend APIs, Supabase, and AI Automation content that is deep enough to progress beyond basics.
 
