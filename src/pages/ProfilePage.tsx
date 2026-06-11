@@ -18,6 +18,8 @@ export function ProfilePage() {
   return (
     <div>
       <Header title="Profil" subtitle="Dein lokales Lernprofil als Entwickler." />
+      <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-4">
+        <div>
       <section className="rounded-3xl border border-white/10 bg-panel p-5 text-center">
         <div className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-gradient-to-br from-sky-300 to-violet-300 text-3xl font-black text-ink">
           {progress.displayName.slice(0, 1).toUpperCase()}
@@ -34,12 +36,13 @@ export function ProfilePage() {
         <StatTile label="Kurse" value={completedCourses} tone="green" />
         <StatTile label="Total" value={`${overall.percent}%`} tone="purple" />
       </section>
-      <section className="mt-5 rounded-3xl border border-white/10 bg-panel p-5">
+        </div>
+        <section className="mt-5 rounded-3xl border border-white/10 bg-panel p-5 lg:mt-0">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-black">Badges</h2>
           <span className="text-sm font-bold text-muted">{earnedCount}/{badgeStates.length}</span>
         </div>
-        <div className="mt-4 grid grid-cols-3 gap-3">
+        <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
           {badgeStates.map(({ badge, earned }) => (
             <div
               key={badge.id}
@@ -52,8 +55,9 @@ export function ProfilePage() {
           ))}
         </div>
         <p className="mt-4 text-xs leading-5 text-muted">Bester Streak bisher: {progress.bestStreak} Tage · {progress.quizCorrectTotal} richtige Quizantworten</p>
-      </section>
-      <div className="mt-5 grid gap-3">
+        </section>
+      </div>
+      <div className="mt-5 grid gap-3 lg:grid-cols-3">
         <Link to="/progress" className="profile-link"><GraduationCap size={20} /> Fortschritt ansehen</Link>
         <Link to="/projects" className="profile-link"><Award size={20} /> Praxisprojekte</Link>
         <Link to="/quiz" className="profile-link"><Flame size={20} /> Fehler wiederholen</Link>

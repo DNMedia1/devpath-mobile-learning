@@ -22,6 +22,8 @@ export function DashboardPage() {
     <div>
       <Header title={`Hi ${progress.displayName}`} subtitle="Baue echte Entwicklerpraxis in kurzen täglichen Sessions auf." />
 
+      <div className="lg:grid lg:grid-cols-[1.15fr_1fr] lg:items-start lg:gap-4">
+        <div>
       <section className="rounded-3xl border border-white/10 bg-panel p-5 shadow-glow">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -46,8 +48,9 @@ export function DashboardPage() {
         <StatTile label="Level" value={levelInfo.level} tone="blue" />
         <StatTile label="Fertig" value={`${overall.percent}%`} tone="green" />
       </section>
+        </div>
 
-      <section className="mt-5 rounded-3xl border border-white/10 bg-panelSoft p-5">
+        <section className="mt-5 rounded-3xl border border-white/10 bg-panelSoft p-5 lg:mt-0">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="grid h-11 w-11 place-items-center rounded-2xl bg-orange-400/15 text-orange-200">
@@ -66,8 +69,8 @@ export function DashboardPage() {
           {quests.map((quest) => (
             <div key={quest.id}>
               <div className="flex items-center justify-between gap-3 text-sm">
-                <span className={`flex items-center gap-2 font-bold ${quest.done ? 'text-emerald-200' : 'text-slate-200'}`}>
-                  <CheckCircle2 size={16} className={quest.done ? 'text-emerald-300' : 'text-muted'} /> {quest.title}
+                <span className={`flex min-w-0 items-center gap-2 break-words font-bold ${quest.done ? 'text-emerald-200' : 'text-slate-200'}`}>
+                  <CheckCircle2 size={16} className={`shrink-0 ${quest.done ? 'text-emerald-300' : 'text-muted'}`} /> {quest.title}
                 </span>
                 <span className="shrink-0 text-xs font-black text-muted">{Math.min(quest.current, quest.target)}/{quest.target}</span>
               </div>
@@ -77,10 +80,11 @@ export function DashboardPage() {
             </div>
           ))}
         </div>
-        <Link to="/quiz" className="mt-4 flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm font-extrabold">
-          <Trophy size={18} /> Quiz üben
-        </Link>
-      </section>
+          <Link to="/quiz" className="mt-4 flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 text-sm font-extrabold">
+            <Trophy size={18} /> Quiz üben
+          </Link>
+        </section>
+      </div>
 
       <section className="mt-6">
         <div className="mb-3 flex items-center justify-between">

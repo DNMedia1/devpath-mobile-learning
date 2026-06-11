@@ -18,7 +18,7 @@ export function ProgressPage() {
         </div>
         <div className="mt-4"><ProgressBar value={overall.percent} accent="#86efac" /></div>
       </section>
-      <div className="mt-4 space-y-3">
+      <div className="mt-4 grid gap-3 lg:grid-cols-2">
         {courses.map((course) => {
           const stats = getCourseProgress(course, progress);
           return (
