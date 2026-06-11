@@ -40,8 +40,8 @@ Version 1 läuft komplett lokal und fühlt sich auf dem Smartphone wie eine App 
 
 - Dashboard mit Weiterlernen-Karte
 - sieben Kurs-Tracks: Python, C#, Java, HTML, CSS, JavaScript und AI Automation
-- drei Module pro Kurs
-- drei Lektionen pro Modul
+- Python als vertiefter Track mit 39 Lektionen über Grundlagen, Collections, Dateien, moderne Sprache, APIs, Daten, Testing und Automatisierung
+- mindestens drei Module und drei Lektionen pro Kurs
 - jede Lektion enthält Theorie, Codebeispiel, zwei Quizfragen, eine Schreibaufgabe und eine Praxisaufgabe
 - lokales Code-Feedback für fast richtige Lösungen mit Syntaxhinweisen, Konzeptchecks und Fortschrittswert
 - Quizmodus mit Schwierigkeitsfiltern und Wiederholung falscher Fragen
