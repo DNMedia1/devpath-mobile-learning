@@ -9,3 +9,4 @@ coverage/
 .vite/
 .snapshots/
 assets/
+.claude/settings.local.json
