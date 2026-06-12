@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Header } from '../components/Header';
 import { allLessons } from '../data/courses';
 import { Difficulty } from '../models/learning';
+import { evaluateExerciseAnswer } from '../services/exerciseEvaluationService';
+import { useLearningActivity } from '../store/LearningActivityContext';
 import { useProgress } from '../store/ProgressContext';
 
 const difficulties: Difficulty[] = ['basic', 'intermediate', 'advanced'];
@@ -25,6 +27,7 @@ function createRound(difficulty: Difficulty, quizMistakes: string[]) {
 
 export function QuizPage() {
   const { submitQuiz, progress } = useProgress();
+  const { recordExerciseResult } = useLearningActivity();
   const [difficulty, setDifficulty] = useState<Difficulty>('basic');
   const [selected, setSelected] = useState<Record<string, string>>({});
   const [result, setResult] = useState<{ score: number; total: number; percentage: number } | null>(null);
@@ -35,6 +38,20 @@ export function QuizPage() {
 
   const submit = () => {
     const graded = submitQuiz(questions.map((question) => ({ questionId: question.id, correctOptionId: question.correctOptionId, selectedOptionId: selected[question.id] ?? '' })));
+    for (const question of questions) {
+      const lesson = allLessons.find((item) => item.exercises.some((exercise) => exercise.id === question.id));
+      const exercise = lesson?.exercises.find((item) => item.id === question.id);
+      if (!lesson || !exercise) continue;
+
+      const result = evaluateExerciseAnswer(exercise, selected[question.id] ?? '');
+      recordExerciseResult({
+        result,
+        exercise,
+        lessonId: lesson.id,
+        courseId: lesson.courseId,
+        rating: result.correct ? 'correct' : 'wrong'
+      });
+    }
     setResult({ score: graded.score, total: graded.total, percentage: graded.percentage });
   };
 
