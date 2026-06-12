@@ -8,6 +8,20 @@
   background: #0b0f14;
 }
 
+/* Tailwind sizes are rem-based, so scaling the root font enlarges the whole
+   UI on large desktop screens without per-component overrides */
+@media (min-width: 1280px) {
+  html {
+    font-size: 17px;
+  }
+}
+
+@media (min-width: 1920px) {
+  html {
+    font-size: 18px;
+  }
+}
+
 :root[data-theme='light'] {
   color-scheme: light;
 }
