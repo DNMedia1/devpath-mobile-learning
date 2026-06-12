@@ -1,4 +1,4 @@
-import { Check, ChevronLeft, ChevronRight, Code2, Flame, Lightbulb, PartyPopper, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Code2, Flame, Lightbulb, PartyPopper, X, Zap } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ExerciseRenderer } from '../components/exercises/ExerciseRenderer';
@@ -7,6 +7,8 @@ import { getLesson, courses } from '../data/courses';
 import type { BadgeDefinition, DailyQuest, Exercise } from '../models/learning';
 import { loadOpenRouterApiKey, requestCodeHint, saveOpenRouterApiKey } from '../services/aiHintService';
 import { getNewlyEarnedBadges } from '../services/badgeService';
+import { getEarnedBoosts, getSpentBoosts, spendBoost, LESSONS_PER_BOOST } from '../services/boostService';
+import { clearLessonPage, loadLessonPage, saveLessonPage } from '../services/lessonResumeService';
 import { evaluateCode, type CodeFeedback } from '../services/codeFeedbackService';
 import { calculateLevel, completeLesson as computeLessonCompletion, getDailyQuests } from '../services/progressService';
 import { useLearningActivity } from '../store/LearningActivityContext';
@@ -51,7 +53,8 @@ export function LessonPage() {
   const { complete, progress } = useProgress();
   const { recordExerciseResult } = useLearningActivity();
   const navigate = useNavigate();
-  const [pageIndex, setPageIndex] = useState(0);
+  const [pageIndex, setPageIndex] = useState(() => loadLessonPage(lessonId ?? ''));
+  const [spentBoosts, setSpentBoosts] = useState(() => getSpentBoosts());
   const [answeredExercises, setAnsweredExercises] = useState<Record<string, boolean>>({});
   const [exerciseResults, setExerciseResults] = useState<Record<string, boolean>>({});
   const [codeDrafts, setCodeDrafts] = useState<Record<string, string>>({});
@@ -97,16 +100,26 @@ export function LessonPage() {
   const courseLessons = course.modules.flatMap((module) => module.lessons);
   const nextLesson = courseLessons[courseLessons.findIndex((item) => item.id === lesson.id) + 1];
 
-  const page = pages[Math.min(pageIndex, pages.length - 1)];
-  const isLastPage = pageIndex >= pages.length - 1;
+  const currentIndex = Math.min(pageIndex, Math.max(0, pages.length - 1));
+  const page = pages[currentIndex];
+  const isLastPage = currentIndex >= pages.length - 1;
+  const availableBoosts = Math.max(0, getEarnedBoosts(progress) - spentBoosts);
   const exercisePages = pages.filter((item): item is Extract<PlayerPage, { kind: 'exercise' }> => item.kind === 'exercise');
   const canAdvance =
     completed ||
     (page.kind === 'exercise' ? Boolean(answeredExercises[page.exercise.id]) : page.kind === 'blank' ? blankComplete : true);
 
   const goTo = (index: number) => {
-    setPageIndex(Math.max(0, Math.min(pages.length - 1, index)));
+    const next = Math.max(0, Math.min(pages.length - 1, index));
+    setPageIndex(next);
+    saveLessonPage(lesson.id, next);
     window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  const skipExercise = () => {
+    if (page.kind !== 'exercise' || availableBoosts <= 0) return;
+    setAnsweredExercises((current) => ({ ...current, [page.exercise.id]: true }));
+    setSpentBoosts(spendBoost());
   };
 
   const finish = () => {
@@ -127,6 +140,7 @@ export function LessonPage() {
       quests: getDailyQuests(after)
     });
     complete(course.id, lesson.id, lesson.xp);
+    clearLessonPage(lesson.id);
   };
 
   const checkCode = () => {
@@ -179,7 +193,8 @@ export function LessonPage() {
 
   const goToNextLesson = () => {
     setFinishResult(null);
-    setPageIndex(0);
+    clearLessonPage(lesson.id);
+    setPageIndex(nextLesson ? loadLessonPage(nextLesson.id) : 0);
     if (nextLesson) {
       navigate(`/lessons/${nextLesson.id}`);
     } else {
@@ -195,22 +210,28 @@ export function LessonPage() {
         </Link>
         <p className="min-w-0 flex-1 truncate text-sm font-extrabold">{lesson.title}</p>
         <span className="shrink-0 text-xs font-black uppercase tracking-[0.14em] text-muted">{course.title} · {lesson.xp} XP</span>
+        <span
+          title={`Boosts zum Überspringen von Aufgaben. Neuer Boost alle ${LESSONS_PER_BOOST} abgeschlossenen Lektionen.`}
+          className="flex shrink-0 items-center gap-1 rounded-full border border-yellow-300/40 bg-yellow-300/10 px-2.5 py-1 text-xs font-black text-yellow-100"
+        >
+          <Zap size={13} /> {availableBoosts}
+        </span>
       </div>
 
       <div className="mt-4 flex items-center gap-3">
         <button
-          onClick={() => goTo(pageIndex - 1)}
-          disabled={pageIndex === 0}
+          onClick={() => goTo(currentIndex - 1)}
+          disabled={currentIndex === 0}
           aria-label="Vorherige Seite"
           className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/10 bg-panel text-muted disabled:opacity-30"
         >
           <ChevronLeft size={17} />
         </button>
         <div className="flex-1">
-          <ProgressBar value={((pageIndex + 1) / pages.length) * 100} accent={course.accent} />
+          <ProgressBar value={((currentIndex + 1) / pages.length) * 100} accent={course.accent} />
         </div>
         <button
-          onClick={() => goTo(pageIndex + 1)}
+          onClick={() => goTo(currentIndex + 1)}
           disabled={isLastPage || !canAdvance}
           aria-label="Nächste Seite"
           className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/10 bg-panel text-muted disabled:opacity-30"
@@ -218,7 +239,7 @@ export function LessonPage() {
           <ChevronRight size={17} />
         </button>
       </div>
-      <p className="mt-2 text-center text-[11px] font-black uppercase tracking-[0.14em] text-muted">Seite {pageIndex + 1}/{pages.length}</p>
+      <p className="mt-2 text-center text-[11px] font-black uppercase tracking-[0.14em] text-muted">Seite {currentIndex + 1}/{pages.length}</p>
 
       <section className="mt-4 flex-1 rounded-3xl border border-white/10 bg-panel p-5 shadow-glow lg:p-8">
         {page.kind === 'intro' ? (
@@ -427,13 +448,18 @@ export function LessonPage() {
       <div className="sticky bottom-24 z-20 mt-4 lg:bottom-4">
         <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0b0f14]/92 p-3 backdrop-blur-xl">
           <button
-            onClick={() => goTo(pageIndex - 1)}
-            disabled={pageIndex === 0}
+            onClick={() => goTo(currentIndex - 1)}
+            disabled={currentIndex === 0}
             className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-white/10 bg-panel text-muted disabled:opacity-30"
             aria-label="Zurück"
           >
             <ChevronLeft size={18} />
           </button>
+          {page.kind === 'exercise' && !canAdvance && availableBoosts > 0 ? (
+            <button onClick={skipExercise} className="flex min-h-12 shrink-0 items-center gap-2 rounded-xl border border-yellow-300/40 bg-yellow-300/10 px-4 font-extrabold text-yellow-100">
+              <Zap size={16} /> Skippen
+            </button>
+          ) : null}
           {page.kind === 'blank' && !blankComplete ? (
             <button
               onClick={checkBlank}
@@ -453,7 +479,7 @@ export function LessonPage() {
           ) : (
             <button
               disabled={!canAdvance}
-              onClick={() => goTo(pageIndex + 1)}
+              onClick={() => goTo(currentIndex + 1)}
               className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-text font-extrabold text-ink disabled:opacity-40"
             >
               Weiter <ChevronRight size={18} />
