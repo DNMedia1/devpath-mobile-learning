@@ -278,7 +278,8 @@ export function LessonPage() {
               key={page.exercise.id}
               exercise={page.exercise}
               onAnswered={(result, rating) => {
-                setAnsweredExercises((current) => ({ ...current, [page.exercise.id]: true }));
+                const isRetryableCodeTask = page.exercise.type === 'code_completion';
+                setAnsweredExercises((current) => ({ ...current, [page.exercise.id]: isRetryableCodeTask ? result.correct : true }));
                 setExerciseResults((current) => ({ ...current, [page.exercise.id]: result.correct }));
                 recordExerciseResult({ result, exercise: page.exercise, lessonId: lesson.id, courseId: course.id, rating });
               }}
