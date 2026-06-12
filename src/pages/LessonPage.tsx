@@ -45,6 +45,9 @@ export function LessonPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [answeredExercises, setAnsweredExercises] = useState<Record<string, boolean>>({});
+  const [exerciseResults, setExerciseResults] = useState<Record<string, boolean>>({});
+  const [revealedKnowledge, setRevealedKnowledge] = useState(1);
+  const [exerciseIndex, setExerciseIndex] = useState(0);
   const [codeDrafts, setCodeDrafts] = useState<Record<string, string>>({});
   const [codeFeedback, setCodeFeedback] = useState<Record<string, CodeFeedback>>({});
   const [blankInputs, setBlankInputs] = useState<Record<string, string>>({});
@@ -141,6 +144,8 @@ export function LessonPage() {
   const goToNextLesson = () => {
     setFinishResult(null);
     setStep(0);
+    setRevealedKnowledge(1);
+    setExerciseIndex(0);
     if (nextLesson) {
       navigate(`/lessons/${nextLesson.id}`);
     } else {
@@ -210,14 +215,19 @@ export function LessonPage() {
             <h2 className="text-xl font-black">Verstehe die Idee</h2>
             <p className="mt-4 text-base leading-8 text-slate-200">{lesson.theory}</p>
             <div className="mt-5 grid gap-3">
-              {lesson.knowledge.map((item, index) => (
+              {lesson.knowledge.slice(0, revealedKnowledge).map((item, index) => (
                 <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                  <p className="text-xs font-black uppercase tracking-[0.14em] text-muted">Wissen {index + 1}</p>
+                  <p className="text-xs font-black uppercase tracking-[0.14em] text-muted">Wissen {index + 1}/{lesson.knowledge.length}</p>
                   <p className="mt-2 text-sm leading-6 text-slate-200">{item}</p>
                 </div>
               ))}
             </div>
-            {lesson.sourceReferences?.length ? (
+            {revealedKnowledge < lesson.knowledge.length ? (
+              <button onClick={() => setRevealedKnowledge((current) => current + 1)} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-text font-extrabold text-ink">
+                Weiter lesen ({revealedKnowledge}/{lesson.knowledge.length})
+              </button>
+            ) : null}
+            {revealedKnowledge >= lesson.knowledge.length && lesson.sourceReferences?.length ? (
               <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                 <p className="text-xs font-black uppercase tracking-[0.14em] text-muted">Quellen</p>
                 <div className="mt-3 grid gap-2">
@@ -286,16 +296,50 @@ export function LessonPage() {
 
         {step === 3 ? (
           <div className="space-y-5">
-            {quizExercises.map((exercise) => (
-              <ExerciseRenderer
-                key={exercise.id}
-                exercise={exercise}
-                onAnswered={(result, rating) => {
-                  setAnsweredExercises((current) => ({ ...current, [exercise.id]: true }));
-                  recordExerciseResult({ result, exercise, lessonId: lesson.id, courseId: course.id, rating });
-                }}
-              />
-            ))}
+            {(() => {
+              const safeIndex = Math.min(exerciseIndex, quizExercises.length - 1);
+              const exercise = quizExercises[safeIndex];
+              if (!exercise) return null;
+              const answeredCount = quizExercises.filter((item) => answeredExercises[item.id]).length;
+              const correctCount = quizExercises.filter((item) => exerciseResults[item.id]).length;
+              const isLast = safeIndex === quizExercises.length - 1;
+              return (
+                <>
+                  <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-muted">
+                    <span>Frage {safeIndex + 1}/{quizExercises.length}</span>
+                    <span>{answeredCount} beantwortet</span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                    <div className="h-full rounded-full bg-text transition-all" style={{ width: `${(answeredCount / quizExercises.length) * 100}%` }} />
+                  </div>
+                  <ExerciseRenderer
+                    key={exercise.id}
+                    exercise={exercise}
+                    onAnswered={(result, rating) => {
+                      setAnsweredExercises((current) => ({ ...current, [exercise.id]: true }));
+                      setExerciseResults((current) => ({ ...current, [exercise.id]: result.correct }));
+                      recordExerciseResult({ result, exercise, lessonId: lesson.id, courseId: course.id, rating });
+                    }}
+                  />
+                  {answeredExercises[exercise.id] && !isLast ? (
+                    <button onClick={() => setExerciseIndex(safeIndex + 1)} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-text font-extrabold text-ink">
+                      Nächste Frage <ChevronRight size={18} />
+                    </button>
+                  ) : null}
+                  {quizComplete ? (
+                    <div className="rounded-2xl border border-emerald-300/40 bg-emerald-300/10 p-4 text-center">
+                      <p className="font-extrabold text-emerald-100">Alle Fragen beantwortet: {correctCount}/{quizExercises.length} richtig</p>
+                      <p className="mt-1 text-sm leading-6 text-muted">Falsch beantwortete Fragen landen automatisch in deiner Wiederholung.</p>
+                    </div>
+                  ) : null}
+                  {safeIndex > 0 ? (
+                    <button onClick={() => setExerciseIndex(safeIndex - 1)} className="flex min-h-10 items-center gap-1 text-sm font-bold text-muted">
+                      <ChevronLeft size={16} /> Vorherige Frage
+                    </button>
+                  ) : null}
+                </>
+              );
+            })()}
           </div>
         ) : null}
 
