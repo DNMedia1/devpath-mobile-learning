@@ -18,7 +18,7 @@ export function CourseDetailPage() {
     <div>
       <Header title={course.title} subtitle={course.description} />
       <section className="overflow-hidden rounded-3xl border border-white/10 shadow-glow">
-        <CourseArt course={course} className="h-36 sm:h-44" />
+        <CourseArt course={course} className="h-36 sm:h-44 lg:h-64" />
         <div className={`bg-gradient-to-br ${course.gradient} p-5 text-ink`}>
           <div className="flex items-center justify-between">
             <div className="text-5xl font-black">{course.icon}</div>
