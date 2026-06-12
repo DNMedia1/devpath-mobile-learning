@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppShell } from './components/AppShell';
+import { ScrollToTop } from './components/ScrollToTop';
 import { CourseDetailPage } from './pages/CourseDetailPage';
 import { CoursesPage } from './pages/CoursesPage';
 import { DashboardPage } from './pages/DashboardPage';
@@ -14,6 +15,7 @@ import { SettingsPage } from './pages/SettingsPage';
 export function App() {
   return (
     <AppShell>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/courses" element={<CoursesPage />} />
