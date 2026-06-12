@@ -18,7 +18,7 @@ function createRound(difficulty: Difficulty, quizMistakes: string[]) {
   const pool = allLessons.flatMap((lesson) => lesson.quiz).filter((question) => question.difficulty === difficulty || difficulty === 'advanced');
   const missed = pool.filter((question) => quizMistakes.includes(question.id));
   return {
-    questions: [...missed, ...pool.filter((question) => !missed.includes(question))].slice(0, 6),
+    questions: [...missed, ...pool.filter((question) => !missed.includes(question))].slice(0, 10),
     repeatIds: missed.map((question) => question.id)
   };
 }

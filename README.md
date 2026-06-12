@@ -44,7 +44,7 @@ Version 1 läuft komplett lokal, fühlt sich auf dem Smartphone wie eine App an 
 - Python als vertiefter Track mit 39 Lektionen über Grundlagen, Collections, Dateien, moderne Sprache, APIs, Daten, Testing und Automatisierung
 - zusätzliche Fullstack-Tracks vertiefen JavaScript/TypeScript, React, Git-Workflows, SQL-Datenmodellierung und Backend-API-Design
 - mindestens drei Module und drei Lektionen pro Kurs
-- jede Lektion enthält Theorie, Codebeispiel, Lückentext-Aufgabe, zwei Quizfragen, eine Schreibaufgabe und eine Praxisaufgabe
+- jede Lektion enthält Theorie, vier Wissenspunkte, Codebeispiel, Lückentext-Aufgabe, vier Multiple-Choice-Fragen, eine Schreibaufgabe und eine Praxisaufgabe
 - Lesson-Navigation mit Schrittleiste auf dem Handy und Step-Sidebar auf dem Desktop
 - Code-Schreibmodus mit lokalem Feedback: Syntaxhinweise, Konzeptchecks und Fortschrittswert für fast richtige Lösungen
 - Quizmodus mit Schwierigkeitsfiltern und Wiederholung falscher Fragen
@@ -60,7 +60,7 @@ Version 1 läuft komplett lokal, fühlt sich auf dem Smartphone wie eine App an 
 
 ## Architektur
 
-Kursinhalte liegen in `src/data/courses.ts` und nutzen die Domain-Modelle aus `src/models/learning.ts`. Quizfragen, Lückentexte und Coding-Challenges werden deterministisch aus kompakten Lesson-Seeds generiert; die korrekte Quizoption liegt dabei nicht immer an derselben Position. Die Fortschrittslogik inklusive Tageszielen und Bonus-XP liegt in `src/services/progressService.ts`; `src/services/badgeService.ts` leitet Badges direkt aus dem Fortschritt ab, ohne zusätzlichen Speicher. `src/store/ProgressContext.tsx` verbindet alles mit React und localStorage.
+Kursinhalte liegen in `src/data/courses.ts` und nutzen die Domain-Modelle aus `src/models/learning.ts`. Wissenspunkte, Quizfragen, Lückentexte und Coding-Challenges werden deterministisch aus kompakten Lesson-Seeds generiert; die korrekte Quizoption liegt dabei nicht immer an derselben Position. Die Fortschrittslogik inklusive Tageszielen und Bonus-XP liegt in `src/services/progressService.ts`; `src/services/badgeService.ts` leitet Badges direkt aus dem Fortschritt ab, ohne zusätzlichen Speicher. `src/store/ProgressContext.tsx` verbindet alles mit React und localStorage.
 
 Die Code-Schreibaufgaben werden aus den Kursdaten erzeugt und in `src/services/codeFeedbackService.ts` lokal geprüft. Die Prüfung ersetzt keine echte Sandbox, gibt aber sofort Hilfe bei offenen Klammern, fehlenden Strings und wichtigen Konzepten wie `return`, `fetch`, `useState`, `git status`, `select`, `z.object`, semantischem HTML oder Automation-Feldern wie `trigger` und `steps`.
 

@@ -17,8 +17,19 @@ describe('course content', () => {
         expect(module.lessons.length).toBeGreaterThanOrEqual(3);
         for (const lesson of module.lessons) {
           expect(lesson.theory.length).toBeGreaterThan(80);
+          expect(lesson.knowledge).toHaveLength(4);
+          for (const knowledgePoint of lesson.knowledge) {
+            expect(knowledgePoint.length).toBeGreaterThan(40);
+          }
           expect(lesson.codeExample.code.length).toBeGreaterThan(20);
-          expect(lesson.quiz).toHaveLength(2);
+          expect(lesson.quiz).toHaveLength(4);
+          expect(lesson.quiz.map((question) => question.prompt)).toEqual(
+            expect.arrayContaining([
+              expect.stringContaining('Codebeispiel'),
+              expect.stringContaining('Fehler'),
+              expect.stringContaining('Praxis')
+            ])
+          );
           expect(lesson.practice.prompt.length).toBeGreaterThan(30);
           expect(lesson.codingChallenge?.starterCode.length).toBeGreaterThan(10);
           expect(lesson.codingChallenge?.requiredConcepts.length).toBeGreaterThanOrEqual(3);

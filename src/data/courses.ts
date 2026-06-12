@@ -1,4 +1,4 @@
-import type { CodingConceptCheck, Course, CourseModule, Difficulty, FillBlankTask, LanguageId, Lesson, QuizOption } from '../models/learning';
+import type { CodingConceptCheck, Course, CourseModule, Difficulty, FillBlankTask, LanguageId, Lesson, QuizOption, QuizQuestion } from '../models/learning';
 
 type LessonSeed = {
   title: string;
@@ -482,6 +482,14 @@ type PracticeQuestionVariant = {
   explanation: string;
 };
 
+type QuizDraft = {
+  prompt: string;
+  correct: string;
+  distractors: [string, string];
+  explanation: string;
+  difficulty: Difficulty;
+};
+
 const practiceQuestionVariants: PracticeQuestionVariant[] = [
   {
     prompt: 'Warum lohnt sich dieses Konzept im Team-Alltag?',
@@ -559,6 +567,83 @@ function buildQuizOptions(entries: { correct: boolean; text: string }[], offset:
   };
 }
 
+function firstSentence(text: string) {
+  return text.split(/(?<=[.!?])\s+/)[0] ?? text;
+}
+
+function buildKnowledgePoints(courseSeed: CourseSeed, moduleSeed: ModuleSeed, lessonSeed: LessonSeed): string[] {
+  return [
+    `Kernidee: ${firstSentence(lessonSeed.theory)} Verknüpfe dieses Thema mit dem Modul "${moduleSeed.title}", damit es nicht als isolierter Syntax-Trick hängen bleibt.`,
+    `Code lesen: Suche im Beispiel zuerst nach Daten, Entscheidung und Ergebnis. Bei "${lessonSeed.title}" zeigt der Code nicht nur Syntax, sondern einen kleinen Ablauf, den du selbst variieren kannst.`,
+    `Praxisregel: ${lessonSeed.bestPractice} Diese Regel ist besonders wichtig in ${courseSeed.title}, weil sie Reviews, Tests und spätere Erweiterungen einfacher macht.`,
+    `Typische Falle: ${lessonSeed.trap} Wenn du diesen Fehler erkennst, kannst du in Übungen gezielt gegensteuern, bevor daraus ein schwer auffindbarer Bug wird.`
+  ];
+}
+
+function buildLessonQuizQuestions(courseSeed: CourseSeed, moduleSeed: ModuleSeed, lessonSeed: LessonSeed, lessonId: string, lessonIndex: number, seedHash: number): QuizQuestion[] {
+  const difficulty = lessonSeed.difficulty ?? 'basic';
+  const practiceVariant = practiceQuestionVariants[positiveModulo(seedHash >>> 3, practiceQuestionVariants.length)];
+  const drafts: QuizDraft[] = [
+    {
+      prompt: `Welche Aussage trifft den Kern von "${lessonSeed.title}" im Modul "${moduleSeed.title}"?`,
+      correct: lessonSeed.bestPractice,
+      distractors: [lessonSeed.trap, quizFallbackDistractors[positiveModulo(seedHash, quizFallbackDistractors.length)]],
+      explanation: `${lessonSeed.bestPractice} Entscheidend ist, dass du die Regel als wiederholbares Arbeitsmuster verstehst und nicht nur als einzelnen Merksatz.`,
+      difficulty
+    },
+    {
+      prompt: `Was solltest du am Codebeispiel zu "${lessonSeed.title}" aktiv lesen?`,
+      correct: `Wie Daten, Entscheidung und Ergebnis zusammenarbeiten, um "${lessonSeed.title}" praktisch umzusetzen.`,
+      distractors: [
+        'Nur ob der Code möglichst kurz geschrieben ist.',
+        'Nur welche Zeichen oder Klammern im Beispiel vorkommen.'
+      ],
+      explanation: `Codebeispiele sind kleine Modelle. Lies zuerst, welche Daten hineingehen, welche Regel angewendet wird und welches Ergebnis herauskommt. Danach kannst du das Muster in deiner eigenen Aufgabe verändern.`,
+      difficulty
+    },
+    {
+      prompt: `Welcher Fehler passt als Warnsignal zu "${lessonSeed.title}"?`,
+      correct: lessonSeed.trap,
+      distractors: [
+        'Die Lösung mit einem kleinen Beispiel oder Test absichern.',
+        lessonSeed.bestPractice
+      ],
+      explanation: `Genau diese Falle ist gefährlich: ${lessonSeed.trap} Ein guter nächster Schritt ist deshalb: ${lessonSeed.bestPractice}`,
+      difficulty: lessonIndex === 2 ? 'intermediate' : difficulty
+    },
+    {
+      prompt: `Wie überträgst du "${lessonSeed.title}" am besten in eine echte Praxisaufgabe?`,
+      correct: lessonSeed.task,
+      distractors: [
+        practiceVariant.distractors[0],
+        practiceVariant.distractors[1]
+      ],
+      explanation: `${lessonSeed.task} ${practiceVariant.explanation}`,
+      difficulty: difficulty === 'advanced' ? 'advanced' : lessonIndex === 2 ? 'intermediate' : difficulty
+    }
+  ];
+
+  return drafts.map((draft, index) => {
+    const options = buildQuizOptions(
+      [
+        { correct: true, text: draft.correct },
+        { correct: false, text: draft.distractors[0] },
+        { correct: false, text: draft.distractors[1] }
+      ],
+      positiveModulo(seedHash >>> (index + 1), 3)
+    );
+
+    return {
+      id: `${lessonId}-q${index + 1}`,
+      prompt: draft.prompt,
+      options: options.options,
+      correctOptionId: options.correctOptionId,
+      explanation: draft.explanation,
+      difficulty: draft.difficulty
+    };
+  });
+}
+
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -607,51 +692,17 @@ export const courses: Course[] = courseSeeds.map((courseSeed) => ({
     lessons: moduleSeed.lessons.map((lessonSeed, lessonIndex): Lesson => {
       const slug = lessonSeed.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       const id = `${courseSeed.id}-${slug || `lesson-${lessonIndex + 1}`}`;
-      const difficulty = lessonSeed.difficulty ?? 'basic';
       const seedHash = hashString(id);
-      const conceptQuestion = buildQuizOptions(
-        [
-          { correct: true, text: lessonSeed.bestPractice },
-          { correct: false, text: lessonSeed.trap },
-          { correct: false, text: quizFallbackDistractors[positiveModulo(seedHash, quizFallbackDistractors.length)] }
-        ],
-        positiveModulo(seedHash, 3)
-      );
-      const practiceVariant = practiceQuestionVariants[positiveModulo(seedHash >>> 3, practiceQuestionVariants.length)];
-      const practiceQuestion = buildQuizOptions(
-        [
-          { correct: true, text: practiceVariant.correct },
-          { correct: false, text: practiceVariant.distractors[0] },
-          { correct: false, text: practiceVariant.distractors[1] }
-        ],
-        positiveModulo(seedHash >>> 5, 3)
-      );
       return {
         id,
         title: lessonSeed.title,
         estimatedMinutes: 6 + lessonIndex * 2,
         xp: 35 + lessonIndex * 5,
         theory: lessonSeed.theory,
+        knowledge: buildKnowledgePoints(courseSeed, moduleSeed, lessonSeed),
         codeExample: { language: courseSeed.codeLanguage, code: lessonSeed.code },
         fillBlank: buildFillBlank(courseSeed.codeLanguage, lessonSeed.code, lessonSeed.title),
-        quiz: [
-          {
-            id: `${id}-q1`,
-            prompt: `Welches Vorgehen passt am besten zum Thema "${lessonSeed.title}"?`,
-            options: conceptQuestion.options,
-            correctOptionId: conceptQuestion.correctOptionId,
-            explanation: `${lessonSeed.bestPractice} Der typische Fehler an dieser Stelle: ${lessonSeed.trap} Wirf danach noch einmal einen Blick auf das Codebeispiel dieser Lektion — dort siehst du das empfohlene Muster im Einsatz.`,
-            difficulty
-          },
-          {
-            id: `${id}-q2`,
-            prompt: practiceVariant.prompt,
-            options: practiceQuestion.options,
-            correctOptionId: practiceQuestion.correctOptionId,
-            explanation: practiceVariant.explanation,
-            difficulty: lessonIndex === 2 ? 'intermediate' : difficulty
-          }
-        ],
+        quiz: buildLessonQuizQuestions(courseSeed, moduleSeed, lessonSeed, id, lessonIndex, seedHash),
         practice: {
           prompt: lessonSeed.task,
           checklist: ['Benenne Daten und Verhalten klar.', 'Implementiere zuerst den normalen Fall.', 'Füge ein kleines Beispiel hinzu, das die Lösung beweist.'],

@@ -67,6 +67,7 @@ export interface Lesson {
   estimatedMinutes: number;
   xp: number;
   theory: string;
+  knowledge: string[];
   codeExample: CodeExample;
   fillBlank: FillBlankTask;
   quiz: QuizQuestion[];

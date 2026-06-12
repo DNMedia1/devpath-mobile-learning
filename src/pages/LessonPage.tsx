@@ -205,6 +205,14 @@ export function LessonPage() {
           <div>
             <h2 className="text-xl font-black">Verstehe die Idee</h2>
             <p className="mt-4 text-base leading-8 text-slate-200">{lesson.theory}</p>
+            <div className="mt-5 grid gap-3">
+              {lesson.knowledge.map((item, index) => (
+                <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-xs font-black uppercase tracking-[0.14em] text-muted">Wissen {index + 1}</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-200">{item}</p>
+                </div>
+              ))}
+            </div>
           </div>
         ) : null}
 
