@@ -38,7 +38,7 @@ export function calculateLevel(xp: number): LevelInfo {
 export function getDailyQuests(progress: UserProgress, date = todayIso()): DailyQuest[] {
   const daily = progress.daily.date === date ? progress.daily : emptyDaily(date);
   const quests = [
-    { id: 'lessons', title: `${progress.dailyGoal} ${progress.dailyGoal === 1 ? 'Lektion' : 'Lektionen'} abschliessen`, target: progress.dailyGoal, current: daily.lessonsCompleted },
+    { id: 'lessons', title: `${progress.dailyGoal} ${progress.dailyGoal === 1 ? 'Lektion' : 'Lektionen'} abschließen`, target: progress.dailyGoal, current: daily.lessonsCompleted },
     { id: 'quiz', title: '5 Quizfragen richtig beantworten', target: 5, current: daily.quizCorrect },
     { id: 'xp', title: '80 XP sammeln', target: 80, current: daily.xpEarned }
   ];

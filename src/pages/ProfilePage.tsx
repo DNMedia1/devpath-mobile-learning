@@ -28,7 +28,7 @@ export function ProfilePage() {
         <p className="mt-1 text-sm text-muted">Level {levelInfo.level} Entwickler · {progress.xp} XP</p>
         <div className="mt-5">
           <ProgressBar value={levelInfo.progress} accent="#7dd3fc" />
-          <p className="mt-2 text-xs font-bold text-muted">{levelInfo.nextLevelXp - progress.xp} XP bis zum naechsten Level</p>
+          <p className="mt-2 text-xs font-bold text-muted">{levelInfo.nextLevelXp - progress.xp} XP bis zum nächsten Level</p>
         </div>
       </section>
       <section className="mt-4 grid grid-cols-3 gap-3">

@@ -7,8 +7,8 @@ export const projects: PracticeProject[] = [
     title: 'To-do CLI',
     difficulty: 'basic',
     duration: '45-60 Min.',
-    summary: 'Baue ein Kommandozeilen-Tool, das Tasks hinzufuegt, auflistet und abschliesst.',
-    requirements: ['Speichere Tasks in einer JSON-Datei.', 'Unterstuetze add, list und complete.', 'Gib hilfreiche Fehlermeldungen für unbekannte Commands aus.'],
+    summary: 'Baue ein Kommandozeilen-Tool, das Tasks hinzufügt, auflistet und abschließt.',
+    requirements: ['Speichere Tasks in einer JSON-Datei.', 'Unterstütze add, list und complete.', 'Gib hilfreiche Fehlermeldungen für unbekannte Commands aus.'],
     hints: ['Nutze pathlib für Dateizugriff.', 'Trenne Parsing von Task-Logik.'],
     solutionNotes: ['Eine gute Lösung hat einen Task-Typ, load/save-Helfer und einen kleinen Command Dispatcher.']
   },
@@ -40,7 +40,7 @@ export const projects: PracticeProject[] = [
     title: 'ASP.NET Core Progress API',
     difficulty: 'intermediate',
     duration: '2 Std.',
-    summary: 'Entwirf Endpunkte für Kursfortschritt mit EF-Core-faehigen Modellen.',
+    summary: 'Entwirf Endpunkte für Kursfortschritt mit EF-Core-fähigen Modellen.',
     requirements: ['Erstelle einen ProgressController.', 'Füge DTOs für Completion Requests hinzu.', 'Gib bei Erfolg 204 zurück.'],
     hints: ['Halte Controller schlank.', 'Nutze Services für Regeln.'],
     solutionNotes: ['Die Datenbank sollte doppelte Completion Rows verhindern.']
@@ -76,7 +76,7 @@ export const projects: PracticeProject[] = [
     summary: 'Baue eine semantische Seite für einen fiktiven Kurs.',
     requirements: ['Nutze header, main, section, article und footer.', 'Füge eine zugängliche Navigation hinzu.', 'Nutze sinnvolle Heading-Level.'],
     hints: ['Schreibe zuerst die Struktur, dann Styling.', 'Prüfe die Heading-Outline.'],
-    solutionNotes: ['Das HTML sollte auch ohne CSS verstaendlich bleiben.']
+    solutionNotes: ['Das HTML sollte auch ohne CSS verständlich bleiben.']
   },
   {
     id: 'css-responsive-cards',

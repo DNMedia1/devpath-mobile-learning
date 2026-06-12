@@ -189,7 +189,7 @@ export function LessonPage() {
               ))}
             </div>
             <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <p className="text-sm font-extrabold">Zum Abschliessen</p>
+              <p className="text-sm font-extrabold">Zum Abschließen</p>
               <ul className="mt-3 space-y-2 text-sm leading-6 text-muted">
                 <li>{blankComplete ? '✓' : '·'} Lücke lösen</li>
                 <li>{quizComplete ? '✓' : '·'} Quiz beantworten</li>
@@ -396,7 +396,7 @@ export function LessonPage() {
           </button>
         ) : (
           <button disabled={(!quizComplete || !codingComplete || !blankComplete) && !completed} onClick={finish} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-emerald-300 font-extrabold text-ink disabled:opacity-40">
-            {completed ? 'Erledigt' : 'Abschliessen'}
+            {completed ? 'Erledigt' : 'Abschließen'}
           </button>
         )}
       </div>
