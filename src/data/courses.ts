@@ -487,49 +487,49 @@ const practiceQuestionVariants: PracticeQuestionVariant[] = [
     prompt: 'Warum lohnt sich dieses Konzept im Team-Alltag?',
     correct: 'Weil Code wiederholt gelesen, getestet, reviewed und geändert wird.',
     distractors: ['Weil es nur für Interviewaufgaben relevant ist.', 'Weil Code nach dem Merge nie wieder angefasst wird.'],
-    explanation: 'Professioneller Code wird selten nur einmal geschrieben. Lesbarkeit und klare Grenzen zahlen sich bei jeder Änderung aus.'
+    explanation: 'Professioneller Code wird selten nur einmal geschrieben: Kolleginnen lesen ihn im Review, Tests prüfen ihn bei jeder Änderung, und in einem halben Jahr musst du selbst wieder verstehen, was du gemeint hast. Deshalb lohnt sich jedes Konzept, das Code lesbarer und Grenzen klarer macht — es spart bei jeder späteren Änderung Zeit und verhindert Missverständnisse.'
   },
   {
     prompt: 'Du übernimmst fremden Code mit unklarer Struktur. Was hilft zuerst?',
     correct: 'Kleine, klar benannte Einheiten mit eindeutiger Verantwortung herstellen.',
     distractors: ['Alles sofort neu schreiben, ohne das Verhalten abzusichern.', 'Mehr Abkürzungen verwenden, damit der Code kürzer wird.'],
-    explanation: 'Verständlichkeit entsteht durch kleine Einheiten mit klarer Aufgabe, nicht durch radikale Neuanfänge oder kompakteren Code.'
+    explanation: 'Ein kompletter Neuanfang klingt verlockend, wirft aber alles weg, was der Code bereits richtig macht — und ohne Tests weißt du nicht, was du dabei kaputt machst. Besser: Schritt für Schritt kleine Einheiten herauslösen, ihnen sprechende Namen geben und jeweils eine klare Aufgabe zuweisen. So wächst Verständlichkeit, ohne dass das Verhalten sich unbemerkt ändert.'
   },
   {
     prompt: 'Was macht eine Lösung review-freundlich?',
     correct: 'Die Absicht ist erkennbar, ohne den Code im Kopf ausführen zu müssen.',
     distractors: ['Sie nutzt möglichst viele clevere Einzeiler.', 'Sie versteckt Details in globalen Variablen.'],
-    explanation: 'Reviewer beurteilen Absicht und Risiken. Je sichtbarer beides ist, desto schneller und sicherer ist das Review.'
+    explanation: 'Wer deinen Code reviewt, muss zwei Dinge erkennen: Was soll der Code tun, und was kann dabei schiefgehen? Clevere Einzeiler und versteckte globale Zustände zwingen den Reviewer, den Code im Kopf auszuführen — das ist langsam und fehleranfällig. Sichtbare Absicht (gute Namen, kleine Funktionen, klare Datenflüsse) macht Reviews schneller und sicherer.'
   },
   {
     prompt: 'Wie prüfst du am verlässlichsten, dass dein Code funktioniert?',
     correct: 'Mit einem kleinen, wiederholbaren Beispiel oder Test.',
     distractors: ['Indem der Code einmal ohne Fehlermeldung startet.', 'Indem sich eine Woche lang niemand beschwert.'],
-    explanation: 'Ein wiederholbares Beispiel beweist Verhalten und schützt vor Regressionen. Ein fehlerfreier Start beweist nur, dass nichts crasht.'
+    explanation: 'Dass ein Programm ohne Fehlermeldung startet, beweist nur, dass nichts sofort abstürzt — nicht, dass es das Richtige tut. Ein kleines, wiederholbares Beispiel (oder ein automatischer Test) prüft dagegen konkretes Verhalten: gleiche Eingabe, erwartete Ausgabe. Das kannst du nach jeder Änderung erneut laufen lassen und merkst sofort, wenn etwas kaputtgeht.'
   },
   {
     prompt: 'Was ist beim Benennen von Variablen und Funktionen am wichtigsten?',
     correct: 'Namen beschreiben Absicht und Inhalt aus Sicht des Lesers.',
     distractors: ['Namen so kurz wie möglich halten, um Tippzeit zu sparen.', 'Namen durchnummerieren, damit sie eindeutig bleiben.'],
-    explanation: 'Code wird häufiger gelesen als geschrieben. Sprechende Namen ersparen jedem Leser das Rekonstruieren der Absicht.'
+    explanation: 'Code wird viel häufiger gelesen als geschrieben — von Kollegen, Reviewern und dir selbst in ein paar Monaten. Ein Name wie userXpAfterBonus erklärt sich sofort; bei x3 oder data2 muss jeder Leser erst den Code durchsuchen, um die Bedeutung zu rekonstruieren. Die paar gesparten Tastenanschläge kosten später ein Vielfaches an Lesezeit.'
   },
   {
     prompt: 'Wie gehst du mit Fehlerfällen in echten Apps um?',
     correct: 'Fehler an klaren Grenzen behandeln und verständlich melden.',
     distractors: ['Fehler global verschlucken, damit nichts abbricht.', 'Fehlerbehandlung auf die Zeit nach dem Launch verschieben.'],
-    explanation: 'Stilles Verschlucken versteckt Bugs. Behandelte und gemeldete Fehler machen Probleme früh sichtbar und reparierbar.'
+    explanation: 'Ein still verschluckter Fehler verschwindet nicht — er taucht später als rätselhaftes Folgeproblem wieder auf, weit weg von seiner Ursache. Behandle Fehler deshalb dort, wo du sinnvoll reagieren kannst (z. B. Eingabe ablehnen, Standardwert setzen, Nutzer informieren), und melde sie verständlich. So bleiben Probleme früh sichtbar und lassen sich gezielt beheben.'
   },
   {
     prompt: 'Was unterscheidet Übungscode von produktionsreifem Code?',
     correct: 'Produktionscode plant Lesbarkeit, Fehlerfälle und Änderungen von Anfang an ein.',
     distractors: ['Produktionscode ist automatisch länger und komplizierter.', 'Übungscode braucht keine korrekte Syntax.'],
-    explanation: 'Produktionsreife bedeutet nicht mehr Komplexität, sondern bewusste Entscheidungen für Wartbarkeit und Fehlerfälle.'
+    explanation: 'Produktionsreif heißt nicht länger oder komplizierter — oft ist guter Produktionscode sogar einfacher. Der Unterschied liegt in den bewussten Entscheidungen: Was passiert bei ungültigen Eingaben? Wie findet der nächste Entwickler sich zurecht? Was muss getestet sein, bevor es live geht? Übungscode darf diese Fragen ignorieren, Produktionscode plant sie von Anfang an ein.'
   },
   {
     prompt: 'Warum sind kleine Schritte beim Entwickeln sinnvoll?',
     correct: 'Kleine Schritte machen Fehler schneller sichtbar und leichter rückgängig.',
     distractors: ['Kleine Schritte garantieren, dass keine Bugs entstehen.', 'Große Würfe sparen am Ende immer Zeit.'],
-    explanation: 'Kleine, überprüfbare Schritte verkürzen die Zeit zwischen Fehler und Entdeckung — das ist der Kern professioneller Arbeit.'
+    explanation: 'Je kleiner der Schritt, desto kürzer die Zeit zwischen Fehler und Entdeckung: Wenn nach einer 10-Zeilen-Änderung etwas bricht, ist die Ursache fast immer in genau diesen 10 Zeilen. Nach einem großen Wurf mit 500 Zeilen suchst du dagegen stundenlang. Kleine Schritte verhindern keine Bugs — aber sie machen jeden Bug schnell auffindbar und leicht rückgängig.'
   }
 ];
 
@@ -640,7 +640,7 @@ export const courses: Course[] = courseSeeds.map((courseSeed) => ({
             prompt: `Welches Vorgehen passt am besten zum Thema "${lessonSeed.title}"?`,
             options: conceptQuestion.options,
             correctOptionId: conceptQuestion.correctOptionId,
-            explanation: lessonSeed.bestPractice,
+            explanation: `${lessonSeed.bestPractice} Der typische Fehler an dieser Stelle: ${lessonSeed.trap} Wirf danach noch einmal einen Blick auf das Codebeispiel dieser Lektion — dort siehst du das empfohlene Muster im Einsatz.`,
             difficulty
           },
           {
