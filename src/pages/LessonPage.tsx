@@ -1,11 +1,10 @@
-import { Check, ChevronLeft, ChevronRight, Code2, Flame, Lightbulb, PartyPopper } from 'lucide-react';
-import { useState } from 'react';
+import { Check, ChevronLeft, ChevronRight, Code2, Flame, Lightbulb, PartyPopper, X } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ExerciseRenderer } from '../components/exercises/ExerciseRenderer';
-import { Header } from '../components/Header';
 import { ProgressBar } from '../components/ProgressBar';
 import { getLesson, courses } from '../data/courses';
-import type { BadgeDefinition, DailyQuest } from '../models/learning';
+import type { BadgeDefinition, DailyQuest, Exercise } from '../models/learning';
 import { loadOpenRouterApiKey, requestCodeHint, saveOpenRouterApiKey } from '../services/aiHintService';
 import { getNewlyEarnedBadges } from '../services/badgeService';
 import { evaluateCode, type CodeFeedback } from '../services/codeFeedbackService';
@@ -13,6 +12,7 @@ import { calculateLevel, completeLesson as computeLessonCompletion, getDailyQues
 import { useLearningActivity } from '../store/LearningActivityContext';
 import { useProgress } from '../store/ProgressContext';
 import { formatDayCount, isFillBlankAnswerCorrect, isLessonCompleted } from '../utils/learning';
+import { Header } from '../components/Header';
 
 type FinishResult = {
   xpGained: number;
@@ -25,7 +25,15 @@ type FinishResult = {
   quests: DailyQuest[];
 };
 
-const lessonSteps = ['Theorie', 'Code', 'Lücke', 'Quiz', 'Coden', 'Aufgabe'];
+type PlayerPage =
+  | { kind: 'intro' }
+  | { kind: 'knowledge'; index: number }
+  | { kind: 'code' }
+  | { kind: 'blank' }
+  | { kind: 'exercise'; exercise: Exercise }
+  | { kind: 'coding' }
+  | { kind: 'practice' };
+
 const confettiPieces = [
   { left: '8%', delay: '0ms', color: '#ffd94d' },
   { left: '22%', delay: '120ms', color: '#50a7ff' },
@@ -43,11 +51,9 @@ export function LessonPage() {
   const { complete, progress } = useProgress();
   const { recordExerciseResult } = useLearningActivity();
   const navigate = useNavigate();
-  const [step, setStep] = useState(0);
+  const [pageIndex, setPageIndex] = useState(0);
   const [answeredExercises, setAnsweredExercises] = useState<Record<string, boolean>>({});
   const [exerciseResults, setExerciseResults] = useState<Record<string, boolean>>({});
-  const [revealedKnowledge, setRevealedKnowledge] = useState(1);
-  const [exerciseIndex, setExerciseIndex] = useState(0);
   const [codeDrafts, setCodeDrafts] = useState<Record<string, string>>({});
   const [codeFeedback, setCodeFeedback] = useState<Record<string, CodeFeedback>>({});
   const [blankInputs, setBlankInputs] = useState<Record<string, string>>({});
@@ -60,9 +66,28 @@ export function LessonPage() {
   const [finishResult, setFinishResult] = useState<FinishResult | null>(null);
   const completed = lesson && course ? isLessonCompleted(progress, course.id, lesson.id) : false;
 
+  // One micro page per content bite, Duolingo/Sololearn style: knowledge bites
+  // alternate with small tasks, then code reading, gap fill, remaining tasks.
+  const pages = useMemo<PlayerPage[]>(() => {
+    if (!lesson) return [];
+    const taskPool = lesson.exercises.filter((exercise) => exercise.type !== 'fill_blank' && exercise.type !== 'short_answer');
+    const items: PlayerPage[] = [{ kind: 'intro' }];
+    const interleaved = Math.min(lesson.knowledge.length, taskPool.length);
+    lesson.knowledge.forEach((_, index) => {
+      items.push({ kind: 'knowledge', index });
+      if (index < interleaved) items.push({ kind: 'exercise', exercise: taskPool[index] });
+    });
+    items.push({ kind: 'code' }, { kind: 'blank' });
+    taskPool.slice(interleaved).forEach((exercise) => items.push({ kind: 'exercise', exercise }));
+    if (lesson.codingChallenge) items.push({ kind: 'coding' });
+    items.push({ kind: 'practice' });
+    return items;
+  }, [lesson]);
+
   if (!lesson || !course) return <Header title="Lektion nicht gefunden" subtitle="Gehe zu einem Kurs und wähle eine andere Lektion." />;
   const quizExercises = lesson.exercises.filter((exercise) => exercise.type !== 'fill_blank' && exercise.type !== 'short_answer');
   const quizComplete = quizExercises.every((exercise) => answeredExercises[exercise.id]);
+  const correctCount = quizExercises.filter((exercise) => exerciseResults[exercise.id]).length;
   const codeValue = lesson.codingChallenge ? (codeDrafts[lesson.id] ?? lesson.codingChallenge.starterCode) : '';
   const feedback = codeFeedback[lesson.id];
   const codingComplete = !lesson.codingChallenge || feedback?.status === 'correct' || completed;
@@ -71,7 +96,18 @@ export function LessonPage() {
   const blankComplete = blankState === 'correct' || completed;
   const courseLessons = course.modules.flatMap((module) => module.lessons);
   const nextLesson = courseLessons[courseLessons.findIndex((item) => item.id === lesson.id) + 1];
-  const stepProgress = ((step + 1) / lessonSteps.length) * 100;
+
+  const page = pages[Math.min(pageIndex, pages.length - 1)];
+  const isLastPage = pageIndex >= pages.length - 1;
+  const exercisePages = pages.filter((item): item is Extract<PlayerPage, { kind: 'exercise' }> => item.kind === 'exercise');
+  const canAdvance =
+    completed ||
+    (page.kind === 'exercise' ? Boolean(answeredExercises[page.exercise.id]) : page.kind === 'blank' ? blankComplete : true);
+
+  const goTo = (index: number) => {
+    setPageIndex(Math.max(0, Math.min(pages.length - 1, index)));
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
 
   const finish = () => {
     if (completed) {
@@ -143,9 +179,7 @@ export function LessonPage() {
 
   const goToNextLesson = () => {
     setFinishResult(null);
-    setStep(0);
-    setRevealedKnowledge(1);
-    setExerciseIndex(0);
+    setPageIndex(0);
     if (nextLesson) {
       navigate(`/lessons/${nextLesson.id}`);
     } else {
@@ -154,81 +188,45 @@ export function LessonPage() {
   };
 
   return (
-    <div>
-      <Header title={lesson.title} subtitle={`${course.title} · ${lesson.estimatedMinutes} min · ${lesson.xp} XP`} />
-      <div className="mb-4 flex gap-2">
-        <Link to={`/courses/${course.id}`} className="flex min-h-10 items-center justify-center rounded-2xl border border-white/10 bg-panel px-4 text-sm font-extrabold text-muted">
-          Kurs
+    <div className="mx-auto flex min-h-[calc(100vh-7.5rem)] w-full max-w-[860px] flex-col lg:min-h-[calc(100vh-5rem)]">
+      <div className="flex items-center gap-3">
+        <Link to={`/courses/${course.id}`} aria-label={`Zurück zu ${course.title}`} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 bg-panel text-muted">
+          <X size={18} />
         </Link>
-        <Link to="/" className="flex min-h-10 items-center justify-center rounded-2xl border border-white/10 bg-panel px-4 text-sm font-extrabold text-muted">
-          Start
-        </Link>
+        <p className="min-w-0 flex-1 truncate text-sm font-extrabold">{lesson.title}</p>
+        <span className="shrink-0 text-xs font-black uppercase tracking-[0.14em] text-muted">{course.title} · {lesson.xp} XP</span>
       </div>
-      <div className="mb-4 grid grid-cols-6 gap-1.5 lg:hidden">
-        {lessonSteps.map((label, index) => (
-          <button key={label} onClick={() => setStep(index)} className={`h-10 rounded-xl px-1 text-[11px] font-extrabold ${step === index ? 'bg-text text-ink' : 'bg-panel text-muted'}`}>
-            {label}
-          </button>
-        ))}
-      </div>
-      <div className="mb-4 rounded-2xl border border-white/10 bg-panel/70 p-3">
-        <div className="mb-2 flex items-center justify-between text-xs font-black uppercase tracking-[0.14em] text-muted">
-          <span>{lessonSteps[step]}</span>
-          <span>{step + 1}/{lessonSteps.length}</span>
+
+      <div className="mt-4 flex items-center gap-3">
+        <button
+          onClick={() => goTo(pageIndex - 1)}
+          disabled={pageIndex === 0}
+          aria-label="Vorherige Seite"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/10 bg-panel text-muted disabled:opacity-30"
+        >
+          <ChevronLeft size={17} />
+        </button>
+        <div className="flex-1">
+          <ProgressBar value={((pageIndex + 1) / pages.length) * 100} accent={course.accent} />
         </div>
-        <ProgressBar value={stepProgress} accent={course.accent} />
+        <button
+          onClick={() => goTo(pageIndex + 1)}
+          disabled={isLastPage || !canAdvance}
+          aria-label="Nächste Seite"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/10 bg-panel text-muted disabled:opacity-30"
+        >
+          <ChevronRight size={17} />
+        </button>
       </div>
+      <p className="mt-2 text-center text-[11px] font-black uppercase tracking-[0.14em] text-muted">Seite {pageIndex + 1}/{pages.length}</p>
 
-      <div className="lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-6">
-        <aside className="hidden lg:block">
-          <div className="sticky top-8 rounded-3xl border border-white/10 bg-panel/90 p-5 shadow-glow">
-            <p className="text-xs font-black uppercase tracking-[0.14em] text-muted">Lektionsschritte</p>
-            <div className="mt-4 grid gap-2">
-              {lessonSteps.map((label, index) => (
-                <button
-                  key={label}
-                  onClick={() => setStep(index)}
-                  className={`flex min-h-11 items-center justify-between rounded-2xl px-3 text-left text-sm font-extrabold ${
-                    step === index ? 'bg-text text-ink' : index < step ? 'bg-emerald-300/10 text-emerald-100' : 'bg-white/5 text-muted'
-                  }`}
-                >
-                  <span>{label}</span>
-                  <span className="text-xs">{index + 1}</span>
-                </button>
-              ))}
-            </div>
-            <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <p className="text-sm font-extrabold">Zum Abschließen</p>
-              <ul className="mt-3 space-y-2 text-sm leading-6 text-muted">
-                <li>{blankComplete ? '✓' : '·'} Lücke lösen</li>
-                <li>{quizComplete ? '✓' : '·'} Quiz beantworten</li>
-                <li>{codingComplete ? '✓' : '·'} Code-Check bestehen</li>
-              </ul>
-            </div>
-          </div>
-        </aside>
-
-        <div className="min-w-0">
-      <section className="rounded-3xl border border-white/10 bg-panel p-5 shadow-glow lg:p-7">
-        {step === 0 ? (
+      <section className="mt-4 flex-1 rounded-3xl border border-white/10 bg-panel p-5 shadow-glow lg:p-8">
+        {page.kind === 'intro' ? (
           <div>
             <h2 className="text-xl font-black">Verstehe die Idee</h2>
-            <p className="mt-4 text-base leading-8 text-slate-200">{lesson.theory}</p>
-            <div className="mt-5 grid gap-3">
-              {lesson.knowledge.slice(0, revealedKnowledge).map((item, index) => (
-                <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                  <p className="text-xs font-black uppercase tracking-[0.14em] text-muted">Wissen {index + 1}/{lesson.knowledge.length}</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-200">{item}</p>
-                </div>
-              ))}
-            </div>
-            {revealedKnowledge < lesson.knowledge.length ? (
-              <button onClick={() => setRevealedKnowledge((current) => current + 1)} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-text font-extrabold text-ink">
-                Weiter lesen ({revealedKnowledge}/{lesson.knowledge.length})
-              </button>
-            ) : null}
-            {revealedKnowledge >= lesson.knowledge.length && lesson.sourceReferences?.length ? (
-              <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+            <p className="mt-4 text-lg leading-9 text-slate-200">{lesson.theory}</p>
+            {lesson.sourceReferences?.length ? (
+              <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                 <p className="text-xs font-black uppercase tracking-[0.14em] text-muted">Quellen</p>
                 <div className="mt-3 grid gap-2">
                   {lesson.sourceReferences.map((source) => (
@@ -243,14 +241,39 @@ export function LessonPage() {
           </div>
         ) : null}
 
-        {step === 1 ? (
+        {page.kind === 'knowledge' ? (
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-muted">Wissen {page.index + 1}/{lesson.knowledge.length}</p>
+            <p className="mt-4 text-lg leading-9 text-slate-200">{lesson.knowledge[page.index]}</p>
+          </div>
+        ) : null}
+
+        {page.kind === 'exercise' ? (
+          <div>
+            <p className="mb-4 text-xs font-black uppercase tracking-[0.14em] text-muted">
+              Aufgabe {exercisePages.findIndex((item) => item.exercise.id === page.exercise.id) + 1}/{exercisePages.length}
+            </p>
+            <ExerciseRenderer
+              key={page.exercise.id}
+              exercise={page.exercise}
+              onAnswered={(result, rating) => {
+                setAnsweredExercises((current) => ({ ...current, [page.exercise.id]: true }));
+                setExerciseResults((current) => ({ ...current, [page.exercise.id]: result.correct }));
+                recordExerciseResult({ result, exercise: page.exercise, lessonId: lesson.id, courseId: course.id, rating });
+              }}
+            />
+          </div>
+        ) : null}
+
+        {page.kind === 'code' ? (
           <div>
             <h2 className="text-xl font-black">Lies den Code</h2>
+            <p className="mt-2 text-sm leading-6 text-muted">Sage für jede Zeile vorher, was sie bewirkt — erst dann weiter.</p>
             <pre className="mt-4 overflow-x-auto rounded-2xl border border-white/10 bg-ink p-4 text-sm leading-6 text-sky-100"><code>{lesson.codeExample.code}</code></pre>
           </div>
         ) : null}
 
-        {step === 2 ? (
+        {page.kind === 'blank' ? (
           <div>
             <h2 className="text-xl font-black">Fülle die Lücke</h2>
             <p className="mt-2 text-sm leading-6 text-muted">{lesson.fillBlank.instruction}</p>
@@ -273,9 +296,6 @@ export function LessonPage() {
                 blankState === 'correct' ? 'border-emerald-300/60' : blankState === 'wrong' ? 'border-red-300/60' : 'border-white/10 focus:border-sky-300'
               }`}
             />
-            <button onClick={checkBlank} className="mt-3 min-h-12 w-full rounded-2xl bg-text font-extrabold text-ink">
-              Antwort prüfen
-            </button>
             {blankState === 'correct' ? (
               <p className="mt-3 rounded-2xl border border-emerald-300/40 bg-emerald-300/10 p-4 text-sm font-bold leading-6 text-emerald-100">
                 Richtig! Genau dieser Baustein macht das Beispiel vollständig.
@@ -294,56 +314,7 @@ export function LessonPage() {
           </div>
         ) : null}
 
-        {step === 3 ? (
-          <div className="space-y-5">
-            {(() => {
-              const safeIndex = Math.min(exerciseIndex, quizExercises.length - 1);
-              const exercise = quizExercises[safeIndex];
-              if (!exercise) return null;
-              const answeredCount = quizExercises.filter((item) => answeredExercises[item.id]).length;
-              const correctCount = quizExercises.filter((item) => exerciseResults[item.id]).length;
-              const isLast = safeIndex === quizExercises.length - 1;
-              return (
-                <>
-                  <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-muted">
-                    <span>Frage {safeIndex + 1}/{quizExercises.length}</span>
-                    <span>{answeredCount} beantwortet</span>
-                  </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                    <div className="h-full rounded-full bg-text transition-all" style={{ width: `${(answeredCount / quizExercises.length) * 100}%` }} />
-                  </div>
-                  <ExerciseRenderer
-                    key={exercise.id}
-                    exercise={exercise}
-                    onAnswered={(result, rating) => {
-                      setAnsweredExercises((current) => ({ ...current, [exercise.id]: true }));
-                      setExerciseResults((current) => ({ ...current, [exercise.id]: result.correct }));
-                      recordExerciseResult({ result, exercise, lessonId: lesson.id, courseId: course.id, rating });
-                    }}
-                  />
-                  {answeredExercises[exercise.id] && !isLast ? (
-                    <button onClick={() => setExerciseIndex(safeIndex + 1)} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-text font-extrabold text-ink">
-                      Nächste Frage <ChevronRight size={18} />
-                    </button>
-                  ) : null}
-                  {quizComplete ? (
-                    <div className="rounded-2xl border border-emerald-300/40 bg-emerald-300/10 p-4 text-center">
-                      <p className="font-extrabold text-emerald-100">Alle Fragen beantwortet: {correctCount}/{quizExercises.length} richtig</p>
-                      <p className="mt-1 text-sm leading-6 text-muted">Falsch beantwortete Fragen landen automatisch in deiner Wiederholung.</p>
-                    </div>
-                  ) : null}
-                  {safeIndex > 0 ? (
-                    <button onClick={() => setExerciseIndex(safeIndex - 1)} className="flex min-h-10 items-center gap-1 text-sm font-bold text-muted">
-                      <ChevronLeft size={16} /> Vorherige Frage
-                    </button>
-                  ) : null}
-                </>
-              );
-            })()}
-          </div>
-        ) : null}
-
-        {step === 4 ? (
+        {page.kind === 'coding' ? (
           <div>
             <div className="flex items-start gap-3">
               <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-sky-300/10 text-sky-100">
@@ -425,7 +396,7 @@ export function LessonPage() {
           </div>
         ) : null}
 
-        {step === 5 ? (
+        {page.kind === 'practice' ? (
           <div>
             <h2 className="text-xl font-black">Praxisaufgabe</h2>
             <p className="mt-3 text-base leading-7 text-slate-200">{lesson.practice.prompt}</p>
@@ -435,25 +406,59 @@ export function LessonPage() {
               ))}
             </ul>
             <p className="mt-4 rounded-2xl bg-white/5 p-4 text-sm leading-6 text-sky-100">Hinweis: {lesson.practice.hint}</p>
+            {quizComplete ? (
+              <div className="mt-4 rounded-2xl border border-emerald-300/40 bg-emerald-300/10 p-4 text-center">
+                <p className="font-extrabold text-emerald-100">Aufgaben: {correctCount}/{quizExercises.length} richtig</p>
+                <p className="mt-1 text-sm leading-6 text-muted">Falsch beantwortete Aufgaben landen automatisch in deiner Wiederholung.</p>
+              </div>
+            ) : null}
+            <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <p className="text-sm font-extrabold">Zum Abschließen</p>
+              <ul className="mt-3 space-y-2 text-sm leading-6 text-muted">
+                <li>{blankComplete ? '✓' : '·'} Lücke lösen</li>
+                <li>{quizComplete ? '✓' : '·'} Alle Aufgaben beantworten</li>
+                <li>{codingComplete ? '✓' : '·'} Code-Check bestehen</li>
+              </ul>
+            </div>
           </div>
         ) : null}
       </section>
 
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <button disabled={step === 0} onClick={() => setStep((current) => Math.max(0, current - 1))} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-panel font-extrabold disabled:opacity-40">
-          <ChevronLeft size={18} /> Zurück
-        </button>
-        {step < lessonSteps.length - 1 ? (
-          <button onClick={() => setStep((current) => Math.min(lessonSteps.length - 1, current + 1))} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-text font-extrabold text-ink">
-            Weiter <ChevronRight size={18} />
+      <div className="sticky bottom-24 z-20 mt-4 lg:bottom-4">
+        <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0b0f14]/92 p-3 backdrop-blur-xl">
+          <button
+            onClick={() => goTo(pageIndex - 1)}
+            disabled={pageIndex === 0}
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-white/10 bg-panel text-muted disabled:opacity-30"
+            aria-label="Zurück"
+          >
+            <ChevronLeft size={18} />
           </button>
-        ) : (
-          <button disabled={(!quizComplete || !codingComplete || !blankComplete) && !completed} onClick={finish} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-emerald-300 font-extrabold text-ink disabled:opacity-40">
-            {completed ? 'Erledigt' : 'Abschließen'}
-          </button>
-        )}
-      </div>
-      <Link to={`/courses/${course.id}`} className="mt-4 block text-center text-sm font-bold text-muted">Zurück zu {course.title}</Link>
+          {page.kind === 'blank' && !blankComplete ? (
+            <button
+              onClick={checkBlank}
+              disabled={blankValue.trim().length === 0}
+              className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-300 font-extrabold text-ink disabled:opacity-40"
+            >
+              Überprüfen
+            </button>
+          ) : isLastPage ? (
+            <button
+              disabled={(!quizComplete || !codingComplete || !blankComplete) && !completed}
+              onClick={finish}
+              className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-300 font-extrabold text-ink disabled:opacity-40"
+            >
+              {completed ? 'Erledigt' : 'Abschließen'}
+            </button>
+          ) : (
+            <button
+              disabled={!canAdvance}
+              onClick={() => goTo(pageIndex + 1)}
+              className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-text font-extrabold text-ink disabled:opacity-40"
+            >
+              Weiter <ChevronRight size={18} />
+            </button>
+          )}
         </div>
       </div>
 
