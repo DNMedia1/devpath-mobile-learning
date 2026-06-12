@@ -1,5 +1,5 @@
 import { RotateCcw, Sparkles } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Header } from '../components/Header';
 import { allLessons } from '../data/courses';
 import { Difficulty } from '../models/learning';
@@ -12,16 +12,24 @@ const difficultyLabels: Record<Difficulty, string> = {
   advanced: 'Fortgeschritten'
 };
 
+// Snapshot of one quiz round: the question order and repeat markers must not
+// shift when quizMistakes updates after submitting.
+function createRound(difficulty: Difficulty, quizMistakes: string[]) {
+  const pool = allLessons.flatMap((lesson) => lesson.quiz).filter((question) => question.difficulty === difficulty || difficulty === 'advanced');
+  const missed = pool.filter((question) => quizMistakes.includes(question.id));
+  return {
+    questions: [...missed, ...pool.filter((question) => !missed.includes(question))].slice(0, 6),
+    repeatIds: missed.map((question) => question.id)
+  };
+}
+
 export function QuizPage() {
   const { submitQuiz, progress } = useProgress();
   const [difficulty, setDifficulty] = useState<Difficulty>('basic');
   const [selected, setSelected] = useState<Record<string, string>>({});
   const [result, setResult] = useState<{ score: number; total: number; percentage: number } | null>(null);
-  const questions = useMemo(() => {
-    const pool = allLessons.flatMap((lesson) => lesson.quiz).filter((question) => question.difficulty === difficulty || difficulty === 'advanced');
-    const missed = pool.filter((question) => progress.quizMistakes.includes(question.id));
-    return [...missed, ...pool.filter((question) => !missed.includes(question))].slice(0, 6);
-  }, [difficulty, progress.quizMistakes]);
+  const [round, setRound] = useState(() => createRound('basic', progress.quizMistakes));
+  const questions = round.questions;
   const answeredCount = questions.filter((question) => selected[question.id]).length;
   const allAnswered = questions.length > 0 && answeredCount === questions.length;
 
@@ -43,7 +51,7 @@ export function QuizPage() {
       <Header title="Quizmodus" subtitle="Übe gemischte Fragen oder wiederhole Konzepte, die noch nicht sitzen." />
       <div className="mb-3 grid grid-cols-3 gap-2">
         {difficulties.map((item) => (
-          <button key={item} onClick={() => { setDifficulty(item); setSelected({}); setResult(null); }} className={`h-11 rounded-2xl text-xs font-extrabold ${difficulty === item ? 'bg-text text-ink' : 'bg-panel text-muted'}`}>
+          <button key={item} onClick={() => { setDifficulty(item); setRound(createRound(item, progress.quizMistakes)); setSelected({}); setResult(null); }} className={`h-11 rounded-2xl text-xs font-extrabold ${difficulty === item ? 'bg-text text-ink' : 'bg-panel text-muted'}`}>
             {difficultyLabels[item]}
           </button>
         ))}
@@ -55,7 +63,7 @@ export function QuizPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         {questions.map((question, index) => {
-          const isRepeat = progress.quizMistakes.includes(question.id);
+          const isRepeat = round.repeatIds.includes(question.id);
           return (
             <section key={question.id} className="rounded-3xl border border-white/10 bg-panel p-5">
               <div className="flex items-center justify-between gap-3">
@@ -104,7 +112,7 @@ export function QuizPage() {
           <p className="text-5xl font-black">{result.percentage}%</p>
           <p className="mt-2 font-extrabold">{result.score}/{result.total} richtig · +{result.score * 12} XP</p>
           <p className="mt-1 text-sm leading-6 text-muted">{resultTone.label}</p>
-          <button onClick={() => { setSelected({}); setResult(null); }} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 font-bold">
+          <button onClick={() => { setRound(createRound(difficulty, progress.quizMistakes)); setSelected({}); setResult(null); }} className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 font-bold">
             <RotateCcw size={17} /> Erneut versuchen
           </button>
         </div>
