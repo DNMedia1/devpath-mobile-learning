@@ -1,6 +1,7 @@
 import { Check, ChevronLeft, ChevronRight, Code2, Flame, Lightbulb, PartyPopper } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ExerciseRenderer } from '../components/exercises/ExerciseRenderer';
 import { Header } from '../components/Header';
 import { ProgressBar } from '../components/ProgressBar';
 import { getLesson, courses } from '../data/courses';
@@ -9,6 +10,7 @@ import { loadOpenRouterApiKey, requestCodeHint, saveOpenRouterApiKey } from '../
 import { getNewlyEarnedBadges } from '../services/badgeService';
 import { evaluateCode, type CodeFeedback } from '../services/codeFeedbackService';
 import { calculateLevel, completeLesson as computeLessonCompletion, getDailyQuests } from '../services/progressService';
+import { useLearningActivity } from '../store/LearningActivityContext';
 import { useProgress } from '../store/ProgressContext';
 import { formatDayCount, isFillBlankAnswerCorrect, isLessonCompleted } from '../utils/learning';
 
@@ -39,9 +41,10 @@ export function LessonPage() {
   const lesson = getLesson(lessonId ?? '');
   const course = courses.find((item) => item.modules.some((module) => module.lessons.some((candidate) => candidate.id === lesson?.id)));
   const { complete, progress } = useProgress();
+  const { recordExerciseResult } = useLearningActivity();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answeredExercises, setAnsweredExercises] = useState<Record<string, boolean>>({});
   const [codeDrafts, setCodeDrafts] = useState<Record<string, string>>({});
   const [codeFeedback, setCodeFeedback] = useState<Record<string, CodeFeedback>>({});
   const [blankInputs, setBlankInputs] = useState<Record<string, string>>({});
@@ -54,8 +57,9 @@ export function LessonPage() {
   const [finishResult, setFinishResult] = useState<FinishResult | null>(null);
   const completed = lesson && course ? isLessonCompleted(progress, course.id, lesson.id) : false;
 
-  const quizComplete = useMemo(() => lesson?.quiz.every((question) => answers[question.id]) ?? false, [answers, lesson]);
   if (!lesson || !course) return <Header title="Lektion nicht gefunden" subtitle="Gehe zu einem Kurs und wähle eine andere Lektion." />;
+  const quizExercises = lesson.exercises.filter((exercise) => exercise.type === 'multiple_choice' || exercise.type === 'true_false' || exercise.type === 'scenario');
+  const quizComplete = quizExercises.every((exercise) => answeredExercises[exercise.id]);
   const codeValue = lesson.codingChallenge ? (codeDrafts[lesson.id] ?? lesson.codingChallenge.starterCode) : '';
   const feedback = codeFeedback[lesson.id];
   const codingComplete = !lesson.codingChallenge || feedback?.status === 'correct' || completed;
@@ -269,32 +273,16 @@ export function LessonPage() {
 
         {step === 3 ? (
           <div className="space-y-5">
-            {lesson.quiz.map((question) => {
-              const selected = answers[question.id];
-              return (
-                <div key={question.id}>
-                  <h2 className="font-extrabold">{question.prompt}</h2>
-                  <div className="mt-3 space-y-2">
-                    {question.options.map((option) => {
-                      const isSelected = selected === option.id;
-                      const isCorrect = selected && option.id === question.correctOptionId;
-                      return (
-                        <button
-                          key={option.id}
-                          onClick={() => setAnswers((current) => ({ ...current, [question.id]: option.id }))}
-                          className={`w-full rounded-2xl border p-3 text-left text-sm font-bold leading-6 transition ${
-                            isCorrect ? 'border-emerald-300/60 bg-emerald-300/10 text-emerald-100' : isSelected ? 'border-red-300/60 bg-red-300/10 text-red-100' : 'border-white/10 bg-white/5 text-slate-200'
-                          }`}
-                        >
-                          {option.text}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {selected ? <p className="mt-3 text-sm leading-6 text-muted">{question.explanation}</p> : null}
-                </div>
-              );
-            })}
+            {quizExercises.map((exercise) => (
+              <ExerciseRenderer
+                key={exercise.id}
+                exercise={exercise}
+                onAnswered={(result, rating) => {
+                  setAnsweredExercises((current) => ({ ...current, [exercise.id]: true }));
+                  recordExerciseResult({ result, exercise, lessonId: lesson.id, courseId: course.id, rating });
+                }}
+              />
+            ))}
           </div>
         ) : null}
 
