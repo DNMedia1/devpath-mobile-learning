@@ -5,6 +5,7 @@ import { CourseDetailPage } from './pages/CourseDetailPage';
 import { CoursesPage } from './pages/CoursesPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { LessonPage } from './pages/LessonPage';
+import { MistakesPage } from './pages/MistakesPage';
 import { ModulePage } from './pages/ModulePage';
 import { ProfilePage } from './pages/ProfilePage';
 import { ProgressPage } from './pages/ProgressPage';
@@ -22,6 +23,7 @@ export function App() {
         <Route path="/courses/:courseId" element={<CourseDetailPage />} />
         <Route path="/courses/:courseId/modules/:moduleId" element={<ModulePage />} />
         <Route path="/lessons/:lessonId" element={<LessonPage />} />
+        <Route path="/mistakes" element={<MistakesPage />} />
         <Route path="/quiz" element={<QuizPage />} />
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/progress" element={<ProgressPage />} />

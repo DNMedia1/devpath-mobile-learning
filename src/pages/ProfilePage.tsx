@@ -60,7 +60,7 @@ export function ProfilePage() {
       <div className="mt-5 grid gap-3 lg:grid-cols-3">
         <Link to="/progress" className="profile-link"><GraduationCap size={20} /> Fortschritt ansehen</Link>
         <Link to="/projects" className="profile-link"><Award size={20} /> Praxisprojekte</Link>
-        <Link to="/quiz" className="profile-link"><Flame size={20} /> Fehler wiederholen</Link>
+        <Link to="/mistakes" className="profile-link"><Flame size={20} /> Meine Fehler</Link>
       </div>
     </div>
   );
