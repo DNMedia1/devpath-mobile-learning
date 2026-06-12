@@ -109,6 +109,14 @@ Version 3 kann ergänzen:
 - Zertifikate
 - bewerbungsorientierte Lernpfade
 
+## Lizenz
+
+Dieses Projekt steht unter der PolyForm Noncommercial License 1.0.0. Private, persönliche und nicht-kommerzielle Nutzung ist erlaubt.
+
+Gewerbliche Nutzung ist nicht durch diese Lizenz abgedeckt. Dazu zählen insbesondere Verkauf, SaaS-Betrieb, Einbindung in Kundenprojekte, interne Unternehmensnutzung mit kommerziellem Zweck, kommerzielle Schulungen oder die Nutzung als Bestandteil eines kostenpflichtigen Produkts. Für solche Zwecke ist vorab eine separate schriftliche kommerzielle Lizenz von DNMedia1 erforderlich.
+
+Wichtig: Diese Lizenz ist bewusst keine klassische Open-Source-Lizenz, weil kommerzielle Nutzung eingeschränkt wird.
+
 ## Hinweis
 
 Die erste Version verzichtet bewusst auf Backend-Abhängigkeiten. Dadurch bleibt die Portfolio-Demo leicht startbar, während die Codegrenzen für eine spätere API sauber bleiben.
