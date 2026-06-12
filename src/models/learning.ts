@@ -13,6 +13,7 @@ export type LanguageId =
   | 'automation';
 export type Difficulty = 'basic' | 'intermediate' | 'advanced';
 export type ThemeMode = 'dark' | 'light';
+export type ReviewRating = 'wrong' | 'hard' | 'correct' | 'easy';
 export type ExerciseType =
   | 'multiple_choice'
   | 'true_false'
@@ -73,6 +74,16 @@ export interface Exercise {
   code?: string;
   solution?: string;
   explanation: string;
+}
+
+export interface ReviewCard {
+  exerciseId: string;
+  nextReviewAt: string;
+  intervalDays: number;
+  easeFactor: number;
+  wrongCount: number;
+  correctStreak: number;
+  lastAnsweredAt: string;
 }
 
 export interface CodeExample {
