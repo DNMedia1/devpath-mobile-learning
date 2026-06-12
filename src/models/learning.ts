@@ -86,6 +86,23 @@ export interface ReviewCard {
   lastAnsweredAt: string;
 }
 
+export interface MistakeEntry {
+  exerciseId: string;
+  lessonId: string;
+  courseId: LanguageId;
+  skillTags: SkillTag[];
+  selectedAnswer: string;
+  correctAnswer: string;
+  feedback: string;
+  answeredAt: string;
+  count: number;
+}
+
+export interface LearningActivityState {
+  mistakes: MistakeEntry[];
+  reviewCards: ReviewCard[];
+}
+
 export interface CodeExample {
   language: string;
   code: string;
