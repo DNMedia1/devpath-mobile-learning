@@ -52,8 +52,8 @@ describe('ExerciseRenderer', () => {
     };
     const onAnswered = vi.fn();
 
-    render(<ExerciseRenderer exercise={exercise} onAnswered={onAnswered} />);
-    expect(screen.getByText('Codebeispiel')).toBeInTheDocument();
+    const { container } = render(<ExerciseRenderer exercise={exercise} onAnswered={onAnswered} />);
+    expect(container.textContent).not.toContain('print(f"{name} lernt Python")');
     expect(screen.getByText('Deine Aufgabe')).toBeInTheDocument();
     expect(screen.getByLabelText('Freier Slot 1')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Überprüfen' })).toBeDisabled();

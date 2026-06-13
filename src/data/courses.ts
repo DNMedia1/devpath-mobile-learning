@@ -351,23 +351,19 @@ const lessonEnhancements: Record<string, LessonEnhancement> = {
       {
         id: `${lessonId}-fstring-token-puzzle`,
         type: 'code_completion',
-        prompt: 'Tippe die Bausteine an, damit der f-String Name und XP einsetzt.',
+        prompt: 'Tippe den fehlenden Baustein an, damit der f-String Name und XP einsetzt.',
         skillTags,
         difficulty,
-        code: 'name = "Mina"\nxp = 420\nprint(__slot_1__"{__slot_2__} hat {__slot_3__} XP")',
+        code: 'name = "Mina"\nxp = 420\nprint(__slot_1__"{name} hat {xp} XP")',
         codeSlots: [
-          { id: 'slot-1', placeholder: '__slot_1__', answer: 'f' },
-          { id: 'slot-2', placeholder: '__slot_2__', answer: 'name' },
-          { id: 'slot-3', placeholder: '__slot_3__', answer: 'xp' }
+          { id: 'slot-1', placeholder: '__slot_1__', answer: 'f' }
         ],
         tokens: [
           { id: 'token-f', text: 'f', feedback: 'Das f aktiviert den f-String.' },
-          { id: 'token-name', text: 'name', feedback: 'name ist die Variable für den sichtbaren Namen.' },
-          { id: 'token-xp', text: 'xp', feedback: 'xp ist die Variable für den Zahlenwert.' },
           { id: 'token-str', text: 'str', feedback: 'str ist hier kein Prefix für f-Strings.' },
           { id: 'token-print', text: 'print', feedback: 'print steht bereits im Code und gehört nicht in die Lücke.' }
         ],
-        expectedAnswer: 'f\nname\nxp',
+        expectedAnswer: 'f',
         explanation: 'Das f startet den f-String. In {name} und {xp} werden danach die aktuellen Variablenwerte eingesetzt.'
       },
       {
@@ -881,7 +877,7 @@ function buildCodeCompletionExercise(courseSeed: CourseSeed, lessonSeed: LessonS
   const usedAnswers = new Set<string>();
   let template = lessonSeed.code;
   const codeSlots = candidates.reduce<NonNullable<Exercise['codeSlots']>>((slots, token) => {
-    if (slots.length >= 3 || usedAnswers.has(token)) return slots;
+    if (slots.length >= 1 || usedAnswers.has(token)) return slots;
     const pattern = patternForToken(token);
     if (!pattern.test(template)) return slots;
 
@@ -897,6 +893,7 @@ function buildCodeCompletionExercise(courseSeed: CourseSeed, lessonSeed: LessonS
   }
 
   const answers = codeSlots.map((slot) => slot.answer);
+  const isSingleSlot = answers.length === 1;
   const distractors = [...(tokenDistractorsByLanguage[courseSeed.codeLanguage] ?? []), ...(blankTokensByLanguage[courseSeed.codeLanguage] ?? [])]
     .filter((token) => !usedAnswers.has(token))
     .slice(0, Math.max(2, codeSlots.length));
@@ -905,7 +902,9 @@ function buildCodeCompletionExercise(courseSeed: CourseSeed, lessonSeed: LessonS
   return {
     id: `${lessonId}-code-completion`,
     type: 'code_completion',
-    prompt: `Tippe die fehlenden Code-Bausteine für "${lessonSeed.title}" in der richtigen Reihenfolge an.`,
+    prompt: isSingleSlot
+      ? `Tippe den fehlenden Code-Baustein für "${lessonSeed.title}" an.`
+      : `Tippe die fehlenden Code-Bausteine für "${lessonSeed.title}" in der richtigen Reihenfolge an.`,
     skillTags,
     difficulty: lessonSeed.difficulty ?? 'basic',
     code: template,
@@ -920,7 +919,9 @@ function buildCodeCompletionExercise(courseSeed: CourseSeed, lessonSeed: LessonS
     expectedAnswer: answers.join('\n'),
     acceptedAnswers: [answers.join('\n')],
     solution: lessonSeed.code,
-    explanation: `Die richtige Reihenfolge ist: ${answers.join(' -> ')}. So setzt du die Syntax aus der Lektion aktiv zusammen, statt sie nur wiederzuerkennen.`
+    explanation: isSingleSlot
+      ? `Der richtige Baustein ist: ${answers[0]}. So setzt du die Syntax aus der Lektion aktiv zusammen, statt sie nur wiederzuerkennen.`
+      : `Die richtige Reihenfolge ist: ${answers.join(' -> ')}. So setzt du die Syntax aus der Lektion aktiv zusammen, statt sie nur wiederzuerkennen.`
   };
 }
 

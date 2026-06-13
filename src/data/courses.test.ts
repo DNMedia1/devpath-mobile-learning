@@ -98,6 +98,11 @@ describe('course content', () => {
       expect(exercise.tokens?.length).toBeGreaterThanOrEqual(exercise.codeSlots?.length ?? 0);
       expect(exercise.expectedAnswer).toBe(exercise.codeSlots?.map((slot) => slot.answer).join('\n'));
     }
+
+    const generatedCompletionExercises = allCodeCompletionExercises.filter((exercise) => exercise.id.endsWith('-code-completion'));
+    for (const exercise of generatedCompletionExercises) {
+      expect(exercise.codeSlots).toHaveLength(1);
+    }
   });
 
   it('uses the Python variables lesson as a richer f-string quality pilot', () => {
@@ -118,6 +123,10 @@ describe('course content', () => {
     );
     expect(pythonVariables?.exercises.length).toBeGreaterThanOrEqual(16);
     expect(pythonVariables?.exercises.some((exercise) => exercise.prompt.includes(':.2f'))).toBe(true);
+    const fStringPuzzle = pythonVariables?.exercises.find((exercise) => exercise.id === 'python-variablen-und-typen-fstring-token-puzzle');
+    expect(fStringPuzzle?.codeSlots).toEqual([{ id: 'slot-1', placeholder: '__slot_1__', answer: 'f' }]);
+    expect(fStringPuzzle?.expectedAnswer).toBe('f');
+    expect(fStringPuzzle?.code).toContain('print(__slot_1__"{name} hat {xp} XP")');
   });
 
   it('generates a boss fight for every module with combined skills', () => {

@@ -19,8 +19,8 @@ export function CodeCompletionExercise({ exercise, onAnswered }: CodeCompletionE
   });
   const selectedAnswers = selectedTokens.map((token) => token.text);
   const isReady = slots.length > 0 && selectedAnswers.length === slots.length;
-  const solutionCode = slots.reduce((code, slot) => code.replace(slot.placeholder, slot.answer), exercise.solution ?? exercise.code ?? '');
   const taskCode = renderCodeWithSlots(exercise.code ?? '', slots, selectedAnswers);
+  const slotLabel = slots.length === 1 ? 'Baustein' : 'Bausteine';
 
   const chooseToken = (tokenId: string) => {
     if (result || selectedTokenIds.includes(tokenId) || selectedTokenIds.length >= slots.length) return;
@@ -44,7 +44,9 @@ export function CodeCompletionExercise({ exercise, onAnswered }: CodeCompletionE
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-xl font-black">{exercise.prompt}</h2>
-            <p className="mt-2 text-sm leading-6 text-muted">Sieh dir erst das Muster an. Tippe danach die Bausteine in der richtigen Reihenfolge in die freien Code-Stellen.</p>
+            <p className="mt-2 text-sm leading-6 text-muted">
+              Tippe nur die Bausteine an, die wirklich in die freien Code-Stellen gehören.
+            </p>
           </div>
           <button
             type="button"
@@ -57,17 +59,6 @@ export function CodeCompletionExercise({ exercise, onAnswered }: CodeCompletionE
         </div>
 
         <div className="mt-5">
-          <p className="text-xs font-black uppercase tracking-[0.14em] text-muted">Codebeispiel</p>
-          <div className="mt-2 overflow-hidden rounded-2xl border border-white/10 bg-ink">
-            <div className="flex items-center justify-between border-b border-white/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-sky-200">
-              <span>Beispiel</span>
-              <span>{exercise.difficulty}</span>
-            </div>
-            <pre className="overflow-x-auto p-4 text-sm leading-7 text-sky-100"><code>{solutionCode}</code></pre>
-          </div>
-        </div>
-
-        <div className="mt-5">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-muted">Deine Aufgabe</p>
           <pre className="mt-2 overflow-x-auto rounded-2xl border border-white/10 bg-ink p-4 text-sm leading-8 text-sky-100"><code>{taskCode}</code></pre>
         </div>
@@ -75,7 +66,7 @@ export function CodeCompletionExercise({ exercise, onAnswered }: CodeCompletionE
 
       <div className="mt-auto border-t border-white/10 bg-white/[0.04] p-5 lg:p-8">
         <div className="mx-auto max-w-[620px]">
-          <p className="text-center text-xs font-black uppercase tracking-[0.14em] text-muted">Bausteine</p>
+          <p className="text-center text-xs font-black uppercase tracking-[0.14em] text-muted">{slotLabel}</p>
           <div className="mt-3 flex flex-wrap justify-center gap-3">
             {(exercise.tokens ?? []).map((token) => {
               const used = selectedTokenIds.includes(token.id);
