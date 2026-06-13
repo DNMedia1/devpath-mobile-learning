@@ -118,7 +118,11 @@ const completionByCourse: Record<LanguageId, ProjectIdeCompletion[]> = {
     completion('select', 'keyword', 'Read rows', 'select column_name\nfrom table_name;'),
     completion('from', 'keyword', 'Choose table'),
     completion('where', 'keyword', 'Filter rows'),
+    completion('join', 'keyword', 'Combine related tables', 'join table_name on first_table.id = table_name.first_table_id'),
+    completion('group by', 'keyword', 'Group rows for aggregates'),
     completion('order by', 'keyword', 'Sort rows'),
+    completion('limit', 'keyword', 'Limit result rows'),
+    completion('count(*)', 'function', 'Count rows in a group'),
     completion('create table', 'snippet', 'Create table', 'create table table_name (\n  id uuid primary key\n);'),
     completion('insert into', 'keyword', 'Insert rows')
   ],
@@ -178,8 +182,9 @@ const ideFilesByCourse: Record<LanguageId, ProjectIdeFile[]> = {
     projectFile('pr-description', 'PR_DESCRIPTION.txt', 'text', 'Text', 'Summary:\n- \n\nTests:\n- \n\nRisk:\n- \n')
   ],
   sql: [
+    projectFile('queries', 'queries.sql', 'sql', 'SQL', "select lesson_id, completed_at\nfrom lesson_progress\nwhere user_id = 'user_123'\norder by completed_at desc;\n"),
     projectFile('schema', 'schema.sql', 'sql', 'SQL', 'create table lesson_progress (\n  user_id uuid not null,\n  lesson_id text not null,\n  completed_at timestamptz not null,\n  primary key (user_id, lesson_id)\n);\n'),
-    projectFile('queries', 'queries.sql', 'sql', 'SQL', 'select lesson_id, completed_at\nfrom lesson_progress\nwhere user_id = \'user_123\'\norder by completed_at desc;\n')
+    projectFile('dashboard-query', 'dashboard_query.sql', 'sql', 'SQL', "select profiles.name, lessons.title\nfrom lesson_progress\njoin profiles on lesson_progress.user_id = profiles.id\njoin lessons on lesson_progress.lesson_id = lessons.id\nwhere lessons.course_id = 'sql'\norder by lesson_progress.completed_at asc;\n")
   ],
   backend: [
     projectFile('api', 'api.ts', 'typescript', 'Backend TypeScript', 'app.post("/lessons/:lessonId/complete", (request, response) => {\n  response.status(204).send();\n});\n'),
