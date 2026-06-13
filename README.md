@@ -1,6 +1,6 @@
-# DevPath Mobile Learning
+# CodingDojo Mobile Learning
 
-DevPath ist eine mobile-first PWA für angehende Entwickler. Die App ist vom schnellen Lernrhythmus bekannter Coding-Apps inspiriert, setzt aber stärker auf echte Entwicklerpraxis: kurze Theorie, korrekte Codebeispiele, direkte Quiz-Rückmeldung, Praxisaufgaben, XP, Streaks, Projekte und Fortschrittstracking.
+CodingDojo ist eine mobile-first PWA für angehende Entwickler. Die App ist vom schnellen Lernrhythmus bekannter Coding-Apps inspiriert, setzt aber stärker auf echte Entwicklerpraxis: kurze Theorie, korrekte Codebeispiele, direkte Quiz-Rückmeldung, Praxisaufgaben, XP, Streaks, Projekte und Fortschrittstracking.
 
 Wichtig: Die Lerninhalte und Erklärungen sind auf Deutsch. Code, Dateinamen, TypeScript-Modelle, Variablen, Funktionen und Codebeispiele bleiben bewusst auf Englisch und syntaktisch korrekt.
 
