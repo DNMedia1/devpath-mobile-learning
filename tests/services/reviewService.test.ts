@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createReviewCard, getDueReviewCards, updateReviewCard } from './reviewService';
+import { createReviewCard, getDueReviewCards, updateReviewCard } from '@/services/reviewService';
 
 describe('reviewService', () => {
   it.each([

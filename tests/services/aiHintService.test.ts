@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AI_HINT_LEVELS, clearOpenRouterApiKey, loadOpenRouterApiKey, requestCodeHint, saveOpenRouterApiKey } from './aiHintService';
+import { AI_HINT_LEVELS, clearOpenRouterApiKey, loadOpenRouterApiKey, requestCodeHint, saveOpenRouterApiKey } from '@/services/aiHintService';
 
 describe('aiHintService', () => {
   beforeEach(() => {

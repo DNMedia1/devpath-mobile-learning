@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { DAILY_BONUS_XP, calculateLevel, completeBossFight, completeLesson, getDailyQuests, gradeQuiz } from './progressService';
-import type { UserProgress } from '../models/learning';
+import { DAILY_BONUS_XP, calculateLevel, completeBossFight, completeLesson, getDailyQuests, gradeQuiz } from '@/services/progressService';
+import type { UserProgress } from '@/models/learning';
 
 const baseProgress: UserProgress = {
   displayName: 'Dominik',

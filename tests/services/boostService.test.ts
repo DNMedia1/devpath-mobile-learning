@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { getAvailableBoosts, getEarnedBoosts, getSpentBoosts, spendBoost } from './boostService';
-import type { UserProgress } from '../models/learning';
+import { getAvailableBoosts, getEarnedBoosts, getSpentBoosts, spendBoost } from '@/services/boostService';
+import type { UserProgress } from '@/models/learning';
 
 function progressWithCompleted(count: number): Pick<UserProgress, 'completedLessons'> {
   return { completedLessons: { python: Array.from({ length: count }, (_, index) => `lesson-${index}`) } };

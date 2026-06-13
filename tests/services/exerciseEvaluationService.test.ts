@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { Exercise } from '../models/learning';
-import { evaluateExerciseAnswer } from './exerciseEvaluationService';
+import type { Exercise } from '@/models/learning';
+import { evaluateExerciseAnswer } from '@/services/exerciseEvaluationService';
 
 describe('exerciseEvaluationService', () => {
   it('returns option feedback for a wrong multiple-choice answer', () => {

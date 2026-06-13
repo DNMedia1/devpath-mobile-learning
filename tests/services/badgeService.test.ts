@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { getBadgeStates, getNewlyEarnedBadges } from './badgeService';
-import { courses } from '../data/courses';
-import type { UserProgress } from '../models/learning';
+import { getBadgeStates, getNewlyEarnedBadges } from '@/services/badgeService';
+import { courses } from '@/data/courses';
+import type { UserProgress } from '@/models/learning';
 
 const emptyProgress: UserProgress = {
   displayName: 'Dominik',

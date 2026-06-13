@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { courses } from '../data/courses';
-import type { UserProgress } from '../models/learning';
-import { createReviewCard } from './reviewService';
-import { getTodayLearningRecommendation } from './recommendationService';
+import { courses } from '@/data/courses';
+import type { UserProgress } from '@/models/learning';
+import { createReviewCard } from '@/services/reviewService';
+import { getTodayLearningRecommendation } from '@/services/recommendationService';
 
 const freshProgress: UserProgress = {
   displayName: 'Dominik',

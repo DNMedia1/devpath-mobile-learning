@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { executeSqlSandboxQuery, getSqlSandbox } from './sqlSandboxService';
+import { executeSqlSandboxQuery, getSqlSandbox } from '@/services/sqlSandboxService';
 
 describe('sql sandbox service', () => {
   it('provides seeded learning tables for the local SQL lab', () => {

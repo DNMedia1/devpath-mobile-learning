@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { defaultProgress } from './progressService';
-import { createMemoryProgressRepository, localProgressRepository } from './progressRepository';
+import { defaultProgress } from '@/services/progressService';
+import { createMemoryProgressRepository, localProgressRepository } from '@/services/progressRepository';
 
 describe('progressRepository', () => {
   beforeEach(() => {

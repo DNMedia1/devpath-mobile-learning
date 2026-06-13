@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { evaluateCode } from './codeFeedbackService';
-import type { CodingChallenge } from '../models/learning';
+import { evaluateCode } from '@/services/codeFeedbackService';
+import type { CodingChallenge } from '@/models/learning';
 
 const challenge: CodingChallenge = {
   prompt: 'Schreibe eine Funktion, die XP addiert.',

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { evaluateCode } from '../services/codeFeedbackService';
-import { courses } from './courses';
+import { evaluateCode } from '@/services/codeFeedbackService';
+import { courses } from '@/data/courses';
 
 describe('course content', () => {
   it('contains complete language and automation tracks', () => {

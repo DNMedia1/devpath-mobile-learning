@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { projects } from '../data/projects';
+import { projects } from '@/data/projects';
 import {
   createProjectWorkspace,
   getProjectFileCompletionSource,
@@ -10,7 +10,7 @@ import {
   saveProjectWorkspace,
   toggleProjectRequirement,
   updateProjectWorkspaceFile
-} from './projectIdeService';
+} from '@/services/projectIdeService';
 
 describe('project IDE configuration', () => {
   it('provides a language-specific IDE config for every practice project', () => {

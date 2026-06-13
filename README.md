@@ -76,6 +76,8 @@ Die Heute-Lernen-Empfehlung liegt in `src/services/recommendationService.ts`. Si
 
 Boss-Fights werden pro Modul aus vorhandenen Exercise-Daten generiert und kombinieren Konzeptfrage, Debugging und Mini-Projekt-Schritt. Der Abschluss wird über `completedBossFights` getrennt vom normalen Lektionsfortschritt gespeichert, damit Kursprozente nicht verfälscht werden.
 
+Tests liegen gesammelt unter `tests/` und spiegeln die Produktbereiche: `tests/services`, `tests/components` und `tests/data`. Der App-Code in `src/` bleibt dadurch frei von Testdateien. Tests importieren Produktmodule über den Alias `@/`, zum Beispiel `@/services/progressService`.
+
 Die Struktur ist so vorbereitet, dass später ein Backend die lokalen Datenservices ersetzen kann. Seitenkomponenten bleiben für Darstellung und Interaktion zuständig; Persistenz, Scoring, Code-Feedback, Empfehlungen und Fortschrittsregeln liegen in Services.
 
 ## Backend-Roadmap

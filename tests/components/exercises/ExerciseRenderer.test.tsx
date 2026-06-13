@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import type { Exercise } from '../../models/learning';
-import { ExerciseRenderer } from './ExerciseRenderer';
+import type { Exercise } from '@/models/learning';
+import { ExerciseRenderer } from '@/components/exercises/ExerciseRenderer';
 
 describe('ExerciseRenderer', () => {
   it('renders multiple-choice feedback and reports the answer result', () => {

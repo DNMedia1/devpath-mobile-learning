@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
-import type { TodayLearningRecommendation } from '../services/recommendationService';
-import { TodayLearningCard } from './TodayLearningCard';
+import type { TodayLearningRecommendation } from '@/services/recommendationService';
+import { TodayLearningCard } from '@/components/TodayLearningCard';
 
 const recommendation: TodayLearningRecommendation = {
   dueReviewCount: 2,

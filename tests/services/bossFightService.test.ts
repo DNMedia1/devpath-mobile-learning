@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { BossFight } from '../models/learning';
-import { getBossFightScore, isBossFightPassed } from './bossFightService';
+import type { BossFight } from '@/models/learning';
+import { getBossFightScore, isBossFightPassed } from '@/services/bossFightService';
 
 const bossFight: BossFight = {
   id: 'python-module-1-boss-fight',

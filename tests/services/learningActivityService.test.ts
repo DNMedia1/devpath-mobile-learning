@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { MistakeEntry, SkillTag } from '../models/learning';
-import { getWeakSkillTags, upsertMistakeEntry } from './learningActivityService';
+import type { MistakeEntry, SkillTag } from '@/models/learning';
+import { getWeakSkillTags, upsertMistakeEntry } from '@/services/learningActivityService';
 
 describe('learningActivityService', () => {
   it('aggregates weak skill tags from mistakes', () => {
