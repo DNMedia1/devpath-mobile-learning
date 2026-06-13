@@ -9,6 +9,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:e2e": "start-server-and-test \"npm run dev -- --host 127.0.0.1 --port 5173\" http://127.0.0.1:5173 \"cypress run --e2e\"",
+    "cypress:open": "cypress open --e2e",
     "lint": "eslint ."
   },
   "dependencies": {
@@ -39,11 +41,13 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "cypress": "^15.17.0",
     "eslint": "^9.0.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.0",
     "globals": "^17.6.0",
     "jsdom": "^25.0.0",
+    "start-server-and-test": "^3.0.11",
     "typescript-eslint": "^8.61.0",
     "vitest": "^2.1.0"
   }
